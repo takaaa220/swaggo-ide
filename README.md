@@ -1,0 +1,1 @@
+# Go Swag for IDE
