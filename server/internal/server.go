@@ -24,6 +24,7 @@ func StartServer() error {
 		SetTrace:                       setTrace,
 		TextDocumentDidSave:            didSave,
 		WorkspaceDidChangeWatchedFiles: didChangeWatchedFiles,
+		TextDocumentCompletion:         completion,
 	}
 
 	s := server.NewServer(&handler, lsName, false)
@@ -38,7 +39,9 @@ func initialize(context *glsp.Context, params *protocol.InitializeParams) (any, 
 	capabilities.TextDocumentSync = protocol.TextDocumentSyncOptions{
 		Save: true,
 	}
-	capabilities.CodeLensProvider = &protocol.CodeLensOptions{}
+	capabilities.CompletionProvider = &protocol.CompletionOptions{
+		TriggerCharacters: []string{"@", " "},
+	}
 
 	return protocol.InitializeResult{
 		Capabilities: capabilities,
@@ -75,4 +78,11 @@ func didChangeWatchedFiles(context *glsp.Context, params *protocol.DidChangeWatc
 	log.Println("Changed watched files")
 
 	return nil
+}
+
+func completion(context *glsp.Context, params *protocol.CompletionParams) (any, error) {
+	log.Println("Completion")
+
+	creator := completionCreatorFactory(params)
+	return creator.getCompletionItems(params.Position)
 }
