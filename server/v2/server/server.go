@@ -15,6 +15,22 @@ func StartServer(ctx context.Context) error {
 	handler := handler.NewLSPHandler(handler.LSPHandlerOptions{
 		HandleInitialize: handleInitialize,
 		HandleCompletion: handleCompletion,
+		HandleDidOpenTextDocument: func(ctx transport.Context, p *protocol.DidOpenTextDocumentParams) error {
+			log.Println("handleDidOpenTextDocument", p.TextDocument.Uri)
+			return nil
+		},
+		HandleDidChangeTextDocument: func(ctx transport.Context, p *protocol.DidChangeTextDocumentParams) error {
+			log.Println("handleDidChangeTextDocument", p.TextDocument.Uri)
+			return nil
+		},
+		HandleDidCloseTextDocument: func(ctx transport.Context, p *protocol.DidCloseTextDocumentParams) error {
+			log.Println("handleDidCloseTextDocument", p.TextDocument.Uri)
+			return nil
+		},
+		HandleDidSaveTextDocument: func(ctx transport.Context, p *protocol.DidSaveTextDocumentParams) error {
+			log.Println("handleDidSaveTextDocument", p.TextDocument.Uri)
+			return nil
+		},
 	})
 
 	binder := transport.NewStdioBinder(handler)
@@ -42,6 +58,7 @@ func handleInitialize(ctx transport.Context, p *protocol.InitializeParams) (*pro
 			CompletionProvider: &protocol.CompletionOptions{
 				TriggerCharacters: []string{" ", "@"},
 			},
+			TextDocumentSync: protocol.TextDocumentSyncKindFull,
 		},
 	}, nil
 }

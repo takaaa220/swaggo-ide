@@ -29,7 +29,7 @@ type ClientCapabilities struct {
 
 // ServerCapabilities defines the capabilities supported by the server.
 type ServerCapabilities struct {
-	TextDocumentSync   int                `json:"textDocumentSync"`
+	TextDocumentSync   any                `json:"textDocumentSync"` // TextDocumentSyncOptions | TextDocumentSyncKind
 	HoverProvider      bool               `json:"hoverProvider,omitempty"`
 	CompletionProvider *CompletionOptions `json:"completionProvider,omitempty"`
 }
