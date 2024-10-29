@@ -4,7 +4,11 @@ go 1.23.1
 
 require github.com/tliron/glsp v0.2.2
 
-require github.com/tliron/commonlog v0.2.19 // indirect
+require (
+	github.com/tliron/commonlog v0.2.19 // indirect
+	golang.org/x/exp/event v0.0.0-20220217172124-1812c5b45e43 // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
+)
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
@@ -23,6 +27,7 @@ require (
 	github.com/sourcegraph/jsonrpc2 v0.2.0 // indirect
 	github.com/tliron/kutil v0.3.26 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
+	golang.org/x/exp/jsonrpc2 v0.0.0-20241009180824-f66d83c29e7c
 	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/term v0.25.0 // indirect
