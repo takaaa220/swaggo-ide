@@ -1,7 +1,11 @@
 package protocol
 
+import "github.com/takaaa220/go-swag-ide/server/v2/server-sdk/transport"
+
 // see: https://www.jsonrpc.org/specification
 // see: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
+
+type InitializeFunc func(transport.Context, *InitializeParams) (*InitializeResult, error)
 
 // InitializeParams defines the parameters sent in an initialize request.
 type InitializeParams struct {
@@ -28,25 +32,4 @@ type ServerCapabilities struct {
 	TextDocumentSync   int                `json:"textDocumentSync"`
 	HoverProvider      bool               `json:"hoverProvider,omitempty"`
 	CompletionProvider *CompletionOptions `json:"completionProvider,omitempty"`
-}
-
-// CompletionOptions represents options for completion requests.
-type CompletionOptions struct {
-	TriggerCharacters []string `json:"triggerCharacters,omitempty"`
-	ResolveProvider   bool     `json:"resolveProvider,omitempty"`
-}
-
-// TextDocumentClientCapabilities defines capabilities related to text documents.
-type TextDocumentClientCapabilities struct {
-	Synchronization TextDocumentSyncClientCapabilities `json:"synchronization,omitempty"`
-}
-
-// WorkspaceClientCapabilities defines capabilities related to the workspace.
-type WorkspaceClientCapabilities struct {
-	ApplyEdit bool `json:"applyEdit,omitempty"`
-}
-
-// TextDocumentSyncClientCapabilities defines capabilities for text document synchronization.
-type TextDocumentSyncClientCapabilities struct {
-	DidSave bool `json:"didSave,omitempty"`
 }
