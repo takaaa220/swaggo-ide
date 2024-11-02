@@ -57,6 +57,8 @@ func StartServer(ctx context.Context) error {
 		return err
 	}
 
+	log.Println("Server started")
+
 	if err := server.Wait(); err != nil {
 		return err
 	}
