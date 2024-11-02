@@ -62,7 +62,7 @@ func TestCheckSyntax(t *testing.T) {
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "should be `@Summary SUMMARY`",
+					Message:  "Should be `@Summary SUMMARY`.",
 				},
 				{
 					Range: protocol.Range{
@@ -71,7 +71,7 @@ func TestCheckSyntax(t *testing.T) {
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "should be `@Description DESCRIPTION`",
+					Message:  "Should be `@Description DESCRIPTION`.",
 				},
 				{
 					Range: protocol.Range{
@@ -80,16 +80,16 @@ func TestCheckSyntax(t *testing.T) {
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "should be `@Tags TAG1,TAG2`",
+					Message:  "Should be `@Tags TAG1,TAG2`.",
 				},
 				{
 					Range: protocol.Range{
-						Start: protocol.Position{Line: 5, Character: 3},
+						Start: protocol.Position{Line: 5, Character: 11},
 						End:   protocol.Position{Line: 5, Character: 18},
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "MIME_TYPE(Arg=1): should be valid mime type, &{value:unknown}",
+					Message:  "MIME_TYPE should be valid mime type.",
 				},
 				{
 					Range: protocol.Range{
@@ -98,43 +98,43 @@ func TestCheckSyntax(t *testing.T) {
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "should be `@Produce MIME_TYPE`",
+					Message:  "Should be `@Produce MIME_TYPE`.",
 				},
 				{
 					Range: protocol.Range{
-						Start: protocol.Position{Line: 8, Character: 3},
-						End:   protocol.Position{Line: 8, Character: 42},
+						Start: protocol.Position{Line: 8, Character: 26},
+						End:   protocol.Position{Line: 8, Character: 29},
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "REQUIRED(Arg=4): should be `true or false`, &{value:aaa}",
+					Message:  "REQUIRED should be `true or false`.",
 				},
 				{
 					Range: protocol.Range{
-						Start: protocol.Position{Line: 9, Character: 3},
-						End:   protocol.Position{Line: 9, Character: 35},
+						Start: protocol.Position{Line: 9, Character: 16},
+						End:   protocol.Position{Line: 9, Character: 21},
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "{PARAM_TYPE}(Arg=2): should be `path, query, header, body, formData, or object`, &{value:xxx}",
+					Message:  "{PARAM_TYPE} should be `path, query, header, body, formData, or object`.",
 				},
 				{
 					Range: protocol.Range{
-						Start: protocol.Position{Line: 10, Character: 3},
-						End:   protocol.Position{Line: 10, Character: 43},
+						Start: protocol.Position{Line: 10, Character: 12},
+						End:   protocol.Position{Line: 10, Character: 15},
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "STATUS_CODE(Arg=1): invalid int",
+					Message:  "STATUS_CODE should be integer.",
 				},
 				{
 					Range: protocol.Range{
-						Start: protocol.Position{Line: 11, Character: 3},
+						Start: protocol.Position{Line: 11, Character: 26},
 						End:   protocol.Position{Line: 11, Character: 35},
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "[HTTP_METHOD](Arg=2): should be `get, post, put, patch, delete, head, options, trace, or connect`, &{value:unknown}",
+					Message:  "[HTTP_METHOD] should be `get, post, put, patch, delete, head, options, trace, or connect`.",
 				},
 			},
 		},

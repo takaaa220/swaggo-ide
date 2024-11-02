@@ -16,30 +16,24 @@ func CheckSyntax(uri string, src string) []protocol.Diagnostics {
 			continue
 		}
 
-		trimmed, trimmedCount := util.TrimPrefixForComment(line)
-		if !strings.HasPrefix(trimmed, "@") {
-			continue
-		}
-
 		parser := NewSwagChecker()
-		_, errors := parser.Check(trimmed)
+		_, checkErrors := parser.Check(line)
 
-		for _, errorMessage := range errors {
+		for _, checkError := range checkErrors {
 			diagnostics = append(diagnostics, protocol.Diagnostics{
-				// TODO: Implement Range
 				Range: protocol.Range{
 					Start: protocol.Position{
 						Line:      uint32(i),
-						Character: uint32(trimmedCount),
+						Character: uint32(checkError.start),
 					},
 					End: protocol.Position{
 						Line:      uint32(i),
-						Character: uint32(trimmedCount + len(trimmed)),
+						Character: uint32(checkError.end),
 					},
 				},
 				Severity: protocol.DiagnosticsSeverityError,
 				Source:   "swag",
-				Message:  errorMessage,
+				Message:  checkError.message,
 			})
 		}
 	}

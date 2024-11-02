@@ -28,7 +28,7 @@ func (s *swagTagDef) errorMessage() string {
 		argsNameList[i] = s.args[i].label
 	}
 
-	return fmt.Sprintf("should be `@%s %s`", s._type, strings.Join(argsNameList, ", "))
+	return fmt.Sprintf("Should be `@%s %s`.", s._type, strings.Join(argsNameList, ", "))
 }
 
 var (
@@ -61,7 +61,7 @@ var (
 		_type: swagTagTypeParam,
 		args: []swagTagArgDef{
 			newSwagTagStringArgDef("PARAM_NAME"),
-			newSwagTagStringArgDef("PARAM_TYPE"),
+			newSwagTagUnionArgDef("PARAM_TYPE", &swagTagArgParamTypeUnionChecker),
 			newSwagTagUnionArgDef("DATA_TYPE", &swagTagArgDataTypeUnionChecker),
 			newSwagTagBoolArgDef("REQUIRED"),
 			newSwagTagStringArgDef("DESCRIPTION"),
@@ -215,7 +215,7 @@ func (s *swagTagArgDef) isValid(arg swagTagArg) (bool, []string) {
 	errors := []string{}
 	for _, checker := range s.checkers {
 		if ok, errorMessage := checker.check(arg, *s); !ok {
-			errors = append(errors, errorMessage)
+			errors = append(errors, fmt.Sprintf("%s %s.", s.label, errorMessage))
 		}
 	}
 
@@ -242,12 +242,12 @@ type swagTagArgIntChecker struct{}
 func (s *swagTagArgIntChecker) check(arg swagTagArg, def swagTagArgDef) (bool, string) {
 	v, ok := arg.(*swagTagArgString)
 	if !ok {
-		return false, "invalid int"
+		return false, "should be integer"
 	}
 
 	_, err := strconv.Atoi(v.value)
 	if err != nil {
-		return false, "invalid int"
+		return false, "should be integer"
 	}
 
 	return true, ""
@@ -261,7 +261,7 @@ type swagTagArgConstStringChecker struct {
 func (s *swagTagArgConstStringChecker) check(arg swagTagArg, def swagTagArgDef) (bool, string) {
 	stringArg, ok := arg.(*swagTagArgString)
 	if !ok {
-		return false, "invalid string"
+		return false, "should be string"
 	}
 
 	argStr := stringArg.value
@@ -287,7 +287,7 @@ func (s *swagTagArgUnionChecker) check(arg swagTagArg, def swagTagArgDef) (bool,
 		}
 	}
 
-	return false, fmt.Sprintf("%s, %+v", s.errorMessage, arg)
+	return false, s.errorMessage
 }
 
 type swagTagArgGoTypeChecker struct{}

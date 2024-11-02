@@ -2,6 +2,7 @@ package swag
 
 import (
 	"fmt"
+	"iter"
 	"strings"
 	"unicode"
 
@@ -23,110 +24,186 @@ func NewSwagChecker() *SwagChecker {
 	return &SwagChecker{}
 }
 
-func (sp *SwagChecker) Check(line string) (bool, []string) {
-	line = strings.TrimSpace(line)
+type checkError struct {
+	message string
+	start   int
+	end     int
+}
 
-	splitForTag := newSplitter(line, 2).split()
-	if len(splitForTag) == 0 {
-		return false, []string{}
+func (sp *SwagChecker) Check(line string) (bool, []checkError) {
+	swagTag, splitArgs := split(line)
+	if !strings.HasPrefix(swagTag.Text, "@") {
+		return false, []checkError{}
 	}
-
-	tag := splitForTag[0]
-	swagTagDef := newSwagTagDef(strings.TrimPrefix(tag, "@"))
+	if splitArgs == nil {
+		return false, []checkError{}
+	}
+	swagTagDef := newSwagTagDef(strings.TrimPrefix(swagTag.Text, "@"))
 	if swagTagDef._type == swagTagTypeUnknown {
-		return false, []string{}
+		return false, []checkError{}
 	}
 
-	splitArgs := []string{}
-	if len(splitForTag) > 1 {
-		splitArgs = newSplitter(splitForTag[1], len(swagTagDef.args)).split()
-	}
+	checkErrors := []checkError{}
+	i := 0
+	for argSplitElement := range splitArgs(len(swagTagDef.args)) {
+		def := swagTagDef.args[i]
 
-	if len(splitArgs) < swagTagDef.requiredArgsCount {
-		return false, []string{swagTagDef.errorMessage()}
-	}
-
-	errors := []string{}
-
-	for i, argDef := range swagTagDef.args {
-		if i >= len(splitArgs) {
-			break
-		}
-
-		argStr := trimBraces(splitArgs[i])
+		text := trimBraces(argSplitElement.Text)
 
 		var arg swagTagArg
-
-		switch argDef.valueType {
+		switch def.valueType {
 		case swagTagArgDefTypeString:
-			arg = &swagTagArgString{value: argStr}
+			arg = &swagTagArgString{value: text}
 		case swagTagArgDefTypeGoType:
-			arg = &swagTagArgGoType{value: argStr}
+			arg = &swagTagArgGoType{value: text}
 		default:
-			panic(fmt.Errorf("unknown argDef.valueType: %d", argDef.valueType))
+			panic(fmt.Errorf("unknown argDef.valueType: %d", def.valueType))
 		}
 
-		ok, errorMessages := argDef.isValid(arg)
+		ok, errorMessages := def.isValid(arg)
 		if !ok {
-			errors = append(errors, fmt.Sprintf("%s(Arg=%d): %s", argDef.label, i+1, strings.Join(errorMessages, ", ")))
+			checkErrors = append(checkErrors, checkError{
+				message: strings.Join(errorMessages, ", "),
+				start:   argSplitElement.Start,
+				end:     argSplitElement.End,
+			})
 		}
+
+		i++
 	}
 
-	return len(errors) == 0, errors
+	if i < swagTagDef.requiredArgsCount {
+		checkErrors = []checkError{{
+			message: swagTagDef.errorMessage(),
+			start:   swagTag.Start,
+			end:     swagTag.End,
+		}}
+	}
+
+	return len(checkErrors) == 0, checkErrors
 }
 
 type splitter struct {
-	str           string
-	maxSplitCount int
-	pointer       int
+	str     string
+	pointer int
 }
 
-func newSplitter(str string, maxSplitCount int) *splitter {
-	return &splitter{str: str, maxSplitCount: maxSplitCount, pointer: -1}
-}
+func split(str string) (splitElement, func(maxSplitCount int) iter.Seq[splitElement]) {
+	splitter := &splitter{str: str, pointer: -1}
 
-func (s *splitter) split() []string {
-	if s.maxSplitCount == 1 {
-		return []string{s.str}
+	for {
+		r, ok := splitter.peek()
+		if !ok {
+			return splitElement{}, nil
+		}
+		if !unicode.IsSpace(r) {
+			break
+		}
+		splitter.next()
 	}
-
-	var result []string
+	for {
+		r, ok := splitter.peek()
+		if !ok {
+			return splitElement{}, nil
+		}
+		if r != '/' {
+			break
+		}
+		splitter.next()
+	}
+	for {
+		r, ok := splitter.peek()
+		if !ok {
+			return splitElement{}, nil
+		}
+		if !unicode.IsSpace(r) {
+			break
+		}
+		splitter.next()
+	}
 
 	substr := []rune{}
 	for {
-		r, ok := s.peek()
-		if !ok {
+		r, ok := splitter.peek()
+		if !ok || unicode.IsSpace(r) {
 			break
 		}
 
-		switch {
-		case r == '"' && len(substr) == 0:
-			result = append(result, s.splitSymbol('"', '"'))
-		case r == '{' && len(substr) == 0:
-			result = append(result, s.splitSymbol('{', '}'))
-		case r == '[' && len(substr) == 0:
-			result = append(result, s.splitSymbol('[', ']'))
-		case unicode.IsSpace(r) || r == '\t':
-			if len(substr) > 0 {
-				result = append(result, string(substr))
-				substr = []rune{}
+		substr = append(substr, r)
+		splitter.next()
+	}
+
+	return splitElement{
+			Text:  string(substr),
+			Start: splitter.pointer - len(substr) + 1,
+			End:   splitter.pointer + 1,
+		},
+		func(maxSplitCount int) iter.Seq[splitElement] {
+			return func(_yield func(splitElement) bool) {
+				yield := func(res splitElement) bool {
+					b := _yield(res)
+					maxSplitCount--
+					return b
+				}
+
+				substr := []rune{}
+				if maxSplitCount == 1 {
+					substr = splitter.getRest()
+				}
+
+				for {
+					r, ok := splitter.peek()
+					if !ok {
+						break
+					}
+
+					yieldCalled := false
+					switch {
+					case r == '"' && len(substr) == 0:
+						yield(splitter.splitSymbol('"', '"'))
+						yieldCalled = true
+					case r == '{' && len(substr) == 0:
+						yield(splitter.splitSymbol('{', '}'))
+						yieldCalled = true
+					case r == '[' && len(substr) == 0:
+						yield(splitter.splitSymbol('[', ']'))
+						yieldCalled = true
+					case unicode.IsSpace(r) || r == '\t':
+						if len(substr) > 0 {
+							yield(splitElement{
+								Text:  string(substr),
+								Start: splitter.pointer - len(substr) + 1,
+								End:   splitter.pointer + 1,
+							})
+							yieldCalled = true
+							substr = []rune{}
+						}
+						splitter.next()
+					default:
+						substr = append(substr, r)
+						splitter.next()
+					}
+
+					if yieldCalled && maxSplitCount == 1 {
+						substr = splitter.getRest()
+					}
+				}
+
+				if len(substr) > 0 {
+					yield(splitElement{
+						Text:  string(substr),
+						Start: splitter.pointer - len(substr) + 1,
+						End:   splitter.pointer + 1,
+					})
+				}
 			}
-			s.next()
-		default:
-			substr = append(substr, r)
-			s.next()
 		}
+}
 
-		if s.maxSplitCount > 0 && len(result) == s.maxSplitCount-1 {
-			result = append(result, strings.TrimSpace(s.str[s.pointer+1:]))
-			break
-		}
-	}
-	if len(substr) > 0 {
-		result = append(result, string(substr))
-	}
-
-	return result
+type splitElement struct {
+	Text  string
+	Start int
+	End   int
 }
 
 func (s *splitter) peek() (rune, bool) {
@@ -147,10 +224,10 @@ func (s *splitter) next() (rune, bool) {
 	return r, true
 }
 
-func (s *splitter) splitSymbol(openSymbol, closeSymbol rune) string {
+func (s *splitter) splitSymbol(openSymbol, closeSymbol rune) splitElement {
 	r, ok := s.peek()
 	if r != openSymbol || !ok {
-		return ""
+		return splitElement{}
 	}
 	s.next()
 
@@ -167,5 +244,32 @@ func (s *splitter) splitSymbol(openSymbol, closeSymbol rune) string {
 		}
 	}
 
-	return string(substr)
+	return splitElement{
+		Text:  string(substr),
+		Start: s.pointer - len(substr) + 1,
+		End:   s.pointer + 1,
+	}
+}
+
+func (s *splitter) getRest() []rune {
+	substr := []rune{}
+	for {
+		r, ok := s.peek()
+		if !ok {
+			break
+		}
+		if !unicode.IsSpace(r) {
+			break
+		}
+		s.next()
+	}
+	for {
+		r, ok := s.peek()
+		if !ok {
+			break
+		}
+		s.next()
+		substr = append(substr, r)
+	}
+	return substr
 }
