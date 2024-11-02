@@ -48,6 +48,7 @@ func (sp *SwagChecker) Check(line string) (bool, []checkError) {
 	for argSplitElement := range splitArgs(len(swagTagDef.args)) {
 		def := swagTagDef.args[i]
 
+		// TODO: move to tag.go
 		text := trimBraces(argSplitElement.Text)
 
 		var arg swagTagArg
@@ -60,7 +61,7 @@ func (sp *SwagChecker) Check(line string) (bool, []checkError) {
 			panic(fmt.Errorf("unknown argDef.valueType: %d", def.valueType))
 		}
 
-		ok, errorMessages := def.isValid(arg)
+		ok, errorMessages := def.check(arg)
 		if !ok {
 			checkErrors = append(checkErrors, checkError{
 				message: strings.Join(errorMessages, ", "),

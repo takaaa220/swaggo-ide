@@ -23,12 +23,16 @@ func newSwagTagDef(tagTypeString string) swagTagDef {
 }
 
 func (s *swagTagDef) errorMessage() string {
+	return fmt.Sprintf("Should be `%s`.", s.String())
+}
+
+func (s *swagTagDef) String() string {
 	argsNameList := make([]string, s.requiredArgsCount)
 	for i := range s.requiredArgsCount {
 		argsNameList[i] = s.args[i].label
 	}
 
-	return fmt.Sprintf("Should be `@%s %s`.", s._type, strings.Join(argsNameList, ", "))
+	return fmt.Sprintf("%s %s", s._type, strings.Join(argsNameList, " "))
 }
 
 var (
@@ -95,6 +99,7 @@ var (
 			newSwagTagStringArgDef("PATH"),
 			newSwagTagUnionArgDef("[HTTP_METHOD]", &swagTagArgHttpMethodUnionChecker),
 		},
+		requiredArgsCount: 2,
 	}
 	swagTagID = swagTagDef{
 		_type: swagTagTypeID,
@@ -134,6 +139,10 @@ var (
 )
 
 type swagTagType string
+
+func (s swagTagType) String() string {
+	return "@" + string(s)
+}
 
 const (
 	swagTagTypeSummary     swagTagType = "Summary"
@@ -211,10 +220,10 @@ func newSwagTagUnionArgDef(label string, checker *swagTagArgUnionChecker, option
 	}
 }
 
-func (s *swagTagArgDef) isValid(arg swagTagArg) (bool, []string) {
+func (s *swagTagArgDef) check(arg swagTagArg) (bool, []string) {
 	errors := []string{}
 	for _, checker := range s.checkers {
-		if ok, errorMessage := checker.check(arg, *s); !ok {
+		if ok, errorMessage := checker.check(arg); !ok {
 			errors = append(errors, fmt.Sprintf("%s %s.", s.label, errorMessage))
 		}
 	}
@@ -224,12 +233,12 @@ func (s *swagTagArgDef) isValid(arg swagTagArg) (bool, []string) {
 
 type swagTagArgChecker interface {
 	// check returns check result and error message
-	check(arg swagTagArg, def swagTagArgDef) (bool, string)
+	check(arg swagTagArg) (bool, string)
 }
 
 type swagTagArgStringChecker struct{}
 
-func (s *swagTagArgStringChecker) check(arg swagTagArg, def swagTagArgDef) (bool, string) {
+func (s *swagTagArgStringChecker) check(arg swagTagArg) (bool, string) {
 	if _, ok := arg.(*swagTagArgString); !ok {
 		return false, "invalid string"
 	}
@@ -239,7 +248,7 @@ func (s *swagTagArgStringChecker) check(arg swagTagArg, def swagTagArgDef) (bool
 
 type swagTagArgIntChecker struct{}
 
-func (s *swagTagArgIntChecker) check(arg swagTagArg, def swagTagArgDef) (bool, string) {
+func (s *swagTagArgIntChecker) check(arg swagTagArg) (bool, string) {
 	v, ok := arg.(*swagTagArgString)
 	if !ok {
 		return false, "should be integer"
@@ -258,7 +267,7 @@ type swagTagArgConstStringChecker struct {
 	converter func(string) string
 }
 
-func (s *swagTagArgConstStringChecker) check(arg swagTagArg, def swagTagArgDef) (bool, string) {
+func (s *swagTagArgConstStringChecker) check(arg swagTagArg) (bool, string) {
 	stringArg, ok := arg.(*swagTagArgString)
 	if !ok {
 		return false, "should be string"
@@ -280,9 +289,9 @@ type swagTagArgUnionChecker struct {
 	errorMessage string
 }
 
-func (s *swagTagArgUnionChecker) check(arg swagTagArg, def swagTagArgDef) (bool, string) {
+func (s *swagTagArgUnionChecker) check(arg swagTagArg) (bool, string) {
 	for _, option := range s.options {
-		if ok, _ := option.check(arg, def); ok {
+		if ok, _ := option.check(arg); ok {
 			return true, ""
 		}
 	}
@@ -292,7 +301,7 @@ func (s *swagTagArgUnionChecker) check(arg swagTagArg, def swagTagArgDef) (bool,
 
 type swagTagArgGoTypeChecker struct{}
 
-func (s *swagTagArgGoTypeChecker) check(arg swagTagArg, def swagTagArgDef) (bool, string) {
+func (s *swagTagArgGoTypeChecker) check(arg swagTagArg) (bool, string) {
 	// TODO: Implement
 	return true, ""
 }
@@ -392,12 +401,4 @@ type swagTagArgGoType struct {
 
 func (s *swagTagArgGoType) TagArgType() string {
 	return "go-type"
-}
-
-type swagTagArgInt struct {
-	value int
-}
-
-func (s *swagTagArgInt) TagArgType() string {
-	return "int"
 }
