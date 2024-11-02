@@ -33,6 +33,7 @@ const (
 type TextDocumentSyncOptions struct {
 	OpenClose bool                 `json:"openClose,omitempty"`
 	Change    TextDocumentSyncKind `json:"change,omitempty"`
+	Save      SaveOptions          `json:"save,omitempty"`
 }
 
 type DidOpenTextDocumentFunc func(context transport.Context, params *DidOpenTextDocumentParams) error

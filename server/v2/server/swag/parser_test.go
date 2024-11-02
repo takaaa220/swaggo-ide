@@ -1,6 +1,7 @@
 package swag
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -23,7 +24,7 @@ func Test_splitter_split(t *testing.T) {
 				str:           `@Param 			id   path      int  true  "Account ID"`,
 				maxSplitCount: -1,
 			},
-			want: []string{"@Param", "id", "path", "int", "true", "Account ID"},
+			want: []string{"@Param", "id", "path", "int", "true", "\"Account ID\""},
 		},
 		{
 			args: splitterArgs{
@@ -55,15 +56,22 @@ func Test_splitter_split(t *testing.T) {
 		},
 		{
 			args: splitterArgs{
+				str:           `hello`,
+				maxSplitCount: 1,
+			},
+			want: []string{"hello"},
+		},
+		{
+			args: splitterArgs{
 				str:           `@Param 			id   path      int  true  "Account ID"`,
 				maxSplitCount: -1,
 			},
-			want: []string{"@Param", "id", "path", "int", "true", "Account ID"},
+			want: []string{"@Param", "id", "path", "int", "true", "\"Account ID\""},
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.args.str, func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s_%d", tt.args.str, tt.args.maxSplitCount), func(t *testing.T) {
 			t.Parallel()
 
 			s := newSplitter(tt.args.str, tt.args.maxSplitCount)

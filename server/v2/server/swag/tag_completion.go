@@ -2,12 +2,12 @@ package swag
 
 import "github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
 
-type swagTag struct {
+type swagTagOld struct {
 	label string
 	args  []string
 }
 
-var swagTags = []swagTag{
+var tags = []swagTagOld{
 	{
 		label: "@Summary",
 		args:  []string{"SUMMARY"},
@@ -60,8 +60,8 @@ var swagTags = []swagTag{
 
 func GetCompletionItems(position protocol.Position) (*protocol.CompletionList, error) {
 	kind := protocol.CompletionItemKindKeyword
-	completionItems := make([]protocol.CompletionItem, len(swagTags))
-	for i, tag := range swagTags {
+	completionItems := make([]protocol.CompletionItem, len(tags))
+	for i, tag := range tags {
 		completionText := tag.label
 		for _, arg := range tag.args {
 			completionText += "  " + arg

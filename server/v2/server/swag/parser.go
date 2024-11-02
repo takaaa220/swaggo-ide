@@ -1,17 +1,76 @@
 package swag
 
 import (
+	"fmt"
+	"strings"
 	"unicode"
+
+	"github.com/takaaa220/go-swag-ide/server/v2/server/util"
 )
 
-type SwagParser struct {
-	splitter *splitter
+var (
+	trimBraces = util.TrimBraces([][]rune{
+		{'{', '}'},
+		{'[', ']'},
+		{'"', '"'},
+	})
+)
+
+type SwagChecker struct {
 }
 
-func (sp *SwagParser) Parse(line string) {
-	_ = sp.splitter.split()
+func NewSwagChecker() *SwagChecker {
+	return &SwagChecker{}
+}
 
-	return
+func (sp *SwagChecker) Check(line string) (bool, []string) {
+	splitForTag := newSplitter(line, 2).split()
+	if len(splitForTag) == 0 {
+		return false, []string{}
+	}
+
+	tag := splitForTag[0]
+	swagTagDef := newSwagTagDef(strings.TrimPrefix(tag, "@"))
+	if swagTagDef._type == swagTagTypeUnknown {
+		return false, []string{}
+	}
+
+	splitArgs := []string{}
+	if len(splitForTag) > 1 {
+		splitArgs = newSplitter(splitForTag[1], len(swagTagDef.args)).split()
+	}
+
+	if len(splitArgs) < swagTagDef.requiredArgsCount {
+		return false, []string{swagTagDef.errorMessage()}
+	}
+
+	errors := []string{}
+
+	for i, argDef := range swagTagDef.args {
+		if i >= len(splitArgs) {
+			break
+		}
+
+		argStr := trimBraces(splitArgs[i])
+
+		var arg swagTagArg
+
+		switch argDef.valueType {
+		case swagTagArgDefTypeString:
+			arg = &swagTagArgString{value: argStr}
+		case swagTagArgDefTypeGoType:
+			arg = &swagTagArgGoType{value: argStr}
+		default:
+			panic(fmt.Errorf("unknown argDef.valueType: %d", argDef.valueType))
+		}
+
+		ok, errorMessages := argDef.isValid(arg)
+		if !ok {
+			errors = append(errors, fmt.Sprintf("%s(Arg=%d): %s", argDef.label, i+1, strings.Join(errorMessages, ", ")))
+		}
+	}
+
+	return len(errors) == 0, errors
 }
 
 type splitter struct {
@@ -25,25 +84,35 @@ func newSplitter(str string, maxSplitCount int) *splitter {
 }
 
 func (s *splitter) split() []string {
+	if s.maxSplitCount == 1 {
+		return []string{s.str}
+	}
+
 	var result []string
 
 	substr := []rune{}
 	for {
-		r, ok := s.next()
+		r, ok := s.peek()
 		if !ok {
 			break
 		}
 
 		switch {
 		case r == '"' && len(substr) == 0:
-			result = append(result, s.splitQuoted())
+			result = append(result, s.splitSymbol('"', '"'))
+		case r == '{' && len(substr) == 0:
+			result = append(result, s.splitSymbol('{', '}'))
+		case r == '[' && len(substr) == 0:
+			result = append(result, s.splitSymbol('[', ']'))
 		case unicode.IsSpace(r) || r == '\t':
 			if len(substr) > 0 {
 				result = append(result, string(substr))
 				substr = []rune{}
 			}
+			s.next()
 		default:
 			substr = append(substr, r)
+			s.next()
 		}
 
 		if s.maxSplitCount > 0 && len(result) == s.maxSplitCount-1 {
@@ -76,19 +145,24 @@ func (s *splitter) next() (rune, bool) {
 	return r, true
 }
 
-func (s *splitter) splitQuoted() string {
-	substr := []rune{}
+func (s *splitter) splitSymbol(openSymbol, closeSymbol rune) string {
+	r, ok := s.peek()
+	if r != openSymbol || !ok {
+		return ""
+	}
+	s.next()
+
+	substr := []rune{r}
 	for {
 		r, ok := s.next()
 		if !ok {
 			break
 		}
 
-		if r == '"' {
+		substr = append(substr, r)
+		if r == closeSymbol {
 			break
 		}
-
-		substr = append(substr, r)
 	}
 
 	return string(substr)
