@@ -1,4 +1,4 @@
-package internal
+package swag
 
 import (
 	"testing"
@@ -52,6 +52,13 @@ func Test_splitter_split(t *testing.T) {
 				maxSplitCount: 3,
 			},
 			want: []string{"@Summary", "hello"},
+		},
+		{
+			args: splitterArgs{
+				str:           `@Param 			id   path      int  true  "Account ID"`,
+				maxSplitCount: -1,
+			},
+			want: []string{"@Param", "id", "path", "int", "true", "Account ID"},
 		},
 	}
 	for _, tt := range tests {
