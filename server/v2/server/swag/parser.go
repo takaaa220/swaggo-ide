@@ -1,9 +1,7 @@
 package swag
 
 import (
-	"fmt"
 	"iter"
-	"strings"
 	"unicode"
 
 	"github.com/takaaa220/go-swag-ide/server/v2/server/util"
@@ -16,73 +14,6 @@ var (
 		{'"', '"'},
 	})
 )
-
-type SwagChecker struct {
-}
-
-func NewSwagChecker() *SwagChecker {
-	return &SwagChecker{}
-}
-
-type checkError struct {
-	message string
-	start   int
-	end     int
-}
-
-func (sp *SwagChecker) Check(line string) (bool, []checkError) {
-	swagTag, splitArgs := split(line)
-	if !strings.HasPrefix(swagTag.Text, "@") {
-		return false, []checkError{}
-	}
-	if splitArgs == nil {
-		return false, []checkError{}
-	}
-	swagTagDef := newSwagTagDef(strings.TrimPrefix(swagTag.Text, "@"))
-	if swagTagDef._type == swagTagTypeUnknown {
-		return false, []checkError{}
-	}
-
-	checkErrors := []checkError{}
-	i := 0
-	for argSplitElement := range splitArgs(len(swagTagDef.args)) {
-		def := swagTagDef.args[i]
-
-		// TODO: move to tag.go
-		text := trimBraces(argSplitElement.Text)
-
-		var arg swagTagArg
-		switch def.valueType {
-		case swagTagArgDefTypeString:
-			arg = &swagTagArgString{value: text}
-		case swagTagArgDefTypeGoType:
-			arg = &swagTagArgGoType{value: text}
-		default:
-			panic(fmt.Errorf("unknown argDef.valueType: %d", def.valueType))
-		}
-
-		ok, errorMessages := def.check(arg)
-		if !ok {
-			checkErrors = append(checkErrors, checkError{
-				message: strings.Join(errorMessages, ", "),
-				start:   argSplitElement.Start,
-				end:     argSplitElement.End,
-			})
-		}
-
-		i++
-	}
-
-	if i < swagTagDef.requiredArgsCount {
-		checkErrors = []checkError{{
-			message: swagTagDef.errorMessage(),
-			start:   swagTag.Start,
-			end:     swagTag.End,
-		}}
-	}
-
-	return len(checkErrors) == 0, checkErrors
-}
 
 type splitter struct {
 	str     string

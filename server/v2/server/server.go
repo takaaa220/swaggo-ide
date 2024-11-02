@@ -121,18 +121,28 @@ func handleCompletion(ctx transport.Context, p *protocol.CompletionParams) (prot
 		return nil, nil
 	}
 
-	if !util.IsInComment(fileInfo.Text.String(), p.Position) {
+	line, ok := fileInfo.Text.GetLine(int(p.Position.Line))
+	if !ok {
+		return nil, nil
+	}
+	if !util.IsCommentLine(line) {
 		return nil, nil
 	}
 
-	if p.Context.TriggerCharacter == "@" {
-		completionList, err := swag.GetCompletionItems(p.Position)
+	switch p.Context.TriggerCharacter {
+	case "@":
+		completionList, err := swag.GetTagCompletionItems(line, p.Position)
 		if err != nil {
 			return nil, err
 		}
-
 		return completionList, nil
+	case " ":
+		completionList, err := swag.GetTagArgCompletionItems(line, p.Position)
+		if err != nil {
+			return nil, err
+		}
+		return completionList, nil
+	default:
+		return nil, nil
 	}
-
-	return nil, nil
 }

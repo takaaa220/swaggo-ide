@@ -17,6 +17,14 @@ type FileInfo struct {
 
 type FileText []string
 
+func (t FileText) GetLine(lineNumber int) (string, bool) {
+	if lineNumber < 0 || lineNumber >= len(t) {
+		return "", false
+	}
+
+	return t[lineNumber], true
+}
+
 func (t FileText) String() string {
 	return strings.Join(t, "\n")
 }

@@ -1,61 +1,37 @@
 package util
 
-import (
-	"testing"
+import "testing"
 
-	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
-)
-
-func TestIsInComment(t *testing.T) {
+func TestIsCommentLine(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
-		src string
-		pos protocol.Position
+		line string
 	}
-	tests := map[string]struct {
+	tests := []struct {
 		args args
 		want bool
 	}{
-		"line comment1": {
+		{
 			args: args{
-				src: "hello world\n// comment\nhello world",
-				pos: protocol.Position{
-					Line:      1,
-					Character: 3,
-				},
+				line: "// @Summary Show an account",
 			},
 			want: true,
 		},
-		"line comment2": {
+		{
 			args: args{
-				src: "hello world\n 	// comment\nhello world",
-				pos: protocol.Position{
-					Line:      1,
-					Character: 8,
-				},
-			},
-			want: true,
-		},
-		"not comment1": {
-			args: args{
-				src: "hello world\n 	// comment\nhello world",
-				pos: protocol.Position{
-					Line:      2,
-					Character: 8,
-				},
+				line: "package main",
 			},
 			want: false,
 		},
 	}
-	for name, tt := range tests {
+	for _, tt := range tests {
 		tt := tt
 
-		t.Run(name, func(t *testing.T) {
+		t.Run(tt.args.line, func(t *testing.T) {
 			t.Parallel()
-			got := IsInComment(tt.args.src, tt.args.pos)
-			if got != tt.want {
-				t.Errorf("IsInComment() = %v, want %v", got, tt.want)
+			if got := IsCommentLine(tt.args.line); got != tt.want {
+				t.Errorf("IsCommentLine() = %v, want %v", got, tt.want)
 			}
 		})
 	}

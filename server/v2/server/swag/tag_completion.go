@@ -6,7 +6,7 @@ import (
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
 )
 
-func GetCompletionItems(position protocol.Position) (*protocol.CompletionList, error) {
+func GetTagCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {
 	completionItems := make([]protocol.CompletionItem, len(swagTags))
 	for i, tag := range swagTags {
 		completionItems[i] = protocol.CompletionItem{
