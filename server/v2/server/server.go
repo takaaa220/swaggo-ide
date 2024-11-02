@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"log"
-	"net/url"
 
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/handler"
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
@@ -93,12 +92,7 @@ func handleCompletion(ctx transport.Context, p *protocol.CompletionParams) (prot
 		return nil, nil
 	}
 
-	parsedUri, err := url.Parse(string(p.TextDocument.Uri))
-	if err != nil {
-		return nil, err
-	}
-
-	t, err := isInFunctionComment(parsedUri.Path, fileInfo.Text.String(), p.Position)
+	t, err := isInFunctionComment(fileInfo.Text.String(), p.Position)
 	if err != nil {
 		log.Println("isInFunctionComment", err)
 		return nil, err
