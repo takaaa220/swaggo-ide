@@ -33,8 +33,16 @@ func (h *LSPHandlerOptions) Handle(ctx transport.Context, req *jsonrpc2.Request)
 		}
 		return nil, jsonrpc2.ErrAsyncResponse
 	case "textDocument/didClose":
+		err := h.handleDidCloseTextDocument(ctx, req)
+		if err != nil {
+			return nil, err
+		}
 		return nil, jsonrpc2.ErrAsyncResponse
 	case "textDocument/didSave":
+		err := h.handleDidSaveTextDocument(ctx, req)
+		if err != nil {
+			return nil, err
+		}
 		return nil, jsonrpc2.ErrAsyncResponse
 	case "textDocument/completion":
 		return h.handleCompletion(ctx, req)

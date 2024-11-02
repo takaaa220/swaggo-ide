@@ -5,11 +5,13 @@ import (
 	"go/parser"
 	"go/token"
 	"strings"
+
+	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
 )
 
-func isInFunctionComment(pos token.Position) (bool, error) {
+func isInFunctionComment(filePath string, src string, pos protocol.Position) (bool, error) {
 	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, pos.Filename, nil, parser.ParseComments)
+	node, err := parser.ParseFile(fset, filePath, src, parser.ParseComments)
 	if err != nil {
 		return false, err
 	}
@@ -22,7 +24,7 @@ func isInFunctionComment(pos token.Position) (bool, error) {
 
 			for _, comment := range funcDecl.Doc.List {
 				commentPos := fset.Position(comment.Pos())
-				if commentPos.Line == pos.Line {
+				if commentPos.Line == int(pos.Line+1) {
 					commentText := strings.TrimSpace(comment.Text)
 					if strings.HasPrefix(commentText, "//") {
 						return true, nil

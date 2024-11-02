@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"go/token"
 	"log"
 	"net/url"
 
@@ -11,24 +10,41 @@ import (
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/transport"
 )
 
+var (
+	cache *FileCache
+)
+
 func StartServer(ctx context.Context) error {
 	handler := handler.NewLSPHandler(handler.LSPHandlerOptions{
 		HandleInitialize: handleInitialize,
 		HandleCompletion: handleCompletion,
 		HandleDidOpenTextDocument: func(ctx transport.Context, p *protocol.DidOpenTextDocumentParams) error {
 			log.Println("handleDidOpenTextDocument", p.TextDocument.Uri)
+			cache.Set(p.TextDocument.Uri, NewFileInfo(p.TextDocument.Version, NewFileText(p.TextDocument.Text)))
 			return nil
 		},
 		HandleDidChangeTextDocument: func(ctx transport.Context, p *protocol.DidChangeTextDocumentParams) error {
 			log.Println("handleDidChangeTextDocument", p.TextDocument.Uri)
+			info, found := cache.Get(p.TextDocument.Uri)
+			if !found {
+				return nil
+			}
+
+			newText := info.Text.Update(p.ContentChanges)
+
+			cache.Set(p.TextDocument.Uri, NewFileInfo(p.TextDocument.Version, newText))
+
 			return nil
 		},
 		HandleDidCloseTextDocument: func(ctx transport.Context, p *protocol.DidCloseTextDocumentParams) error {
 			log.Println("handleDidCloseTextDocument", p.TextDocument.Uri)
+			cache.Delete(p.TextDocument.Uri)
 			return nil
 		},
 		HandleDidSaveTextDocument: func(ctx transport.Context, p *protocol.DidSaveTextDocumentParams) error {
 			log.Println("handleDidSaveTextDocument", p.TextDocument.Uri)
+			cache.Delete(p.TextDocument.Uri)
+			cache.Set(p.TextDocument.Uri, NewFileInfo(0, NewFileText(p.Text)))
 			return nil
 		},
 	})
@@ -53,6 +69,8 @@ func handleInitialize(ctx transport.Context, p *protocol.InitializeParams) (*pro
 		return nil, err
 	}
 
+	cache = NewFileCache()
+
 	return &protocol.InitializeResult{
 		Capabilities: protocol.ServerCapabilities{
 			CompletionProvider: &protocol.CompletionOptions{
@@ -68,20 +86,17 @@ func handleCompletion(ctx transport.Context, p *protocol.CompletionParams) (prot
 		return nil, err
 	}
 
+	fileInfo, found := cache.Get(p.TextDocument.Uri)
+	if !found {
+		return nil, nil
+	}
+
 	parsedUri, err := url.Parse(string(p.TextDocument.Uri))
 	if err != nil {
-		log.Println("url.Parse", err)
 		return nil, err
 	}
 
-	log.Println("parsedUri.Path", parsedUri.Path)
-
-	t, err := isInFunctionComment(token.Position{
-		Filename: parsedUri.Path,
-		Line:     int(p.Position.Line + 1),
-		Column:   int(p.Position.Character + 1),
-		Offset:   -1,
-	})
+	t, err := isInFunctionComment(parsedUri.Path, fileInfo.Text.String(), p.Position)
 	if err != nil {
 		log.Println("isInFunctionComment", err)
 		return nil, err
