@@ -24,6 +24,8 @@ func NewSwagChecker() *SwagChecker {
 }
 
 func (sp *SwagChecker) Check(line string) (bool, []string) {
+	line = strings.TrimSpace(line)
+
 	splitForTag := newSplitter(line, 2).split()
 	if len(splitForTag) == 0 {
 		return false, []string{}
@@ -116,7 +118,7 @@ func (s *splitter) split() []string {
 		}
 
 		if s.maxSplitCount > 0 && len(result) == s.maxSplitCount-1 {
-			result = append(result, string(s.str[s.pointer+1:]))
+			result = append(result, strings.TrimSpace(s.str[s.pointer+1:]))
 			break
 		}
 	}
