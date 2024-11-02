@@ -163,12 +163,6 @@ func split(str string) (splitElement, func(maxSplitCount int) iter.Seq[splitElem
 					case r == '"' && len(substr) == 0:
 						yield(splitter.splitSymbol('"', '"'))
 						yieldCalled = true
-					case r == '{' && len(substr) == 0:
-						yield(splitter.splitSymbol('{', '}'))
-						yieldCalled = true
-					case r == '[' && len(substr) == 0:
-						yield(splitter.splitSymbol('[', ']'))
-						yieldCalled = true
 					case unicode.IsSpace(r) || r == '\t':
 						if len(substr) > 0 {
 							yield(splitElement{

@@ -66,7 +66,7 @@ var (
 		args: []swagTagArgDef{
 			newSwagTagStringArgDef("PARAM_NAME"),
 			newSwagTagUnionArgDef("PARAM_TYPE", &swagTagArgParamTypeUnionChecker),
-			newSwagTagUnionArgDef("DATA_TYPE", &swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("GO_TYPE", &swagTagArgGoDataTypeUnionChecker),
 			newSwagTagBoolArgDef("REQUIRED"),
 			newSwagTagStringArgDef("DESCRIPTION"),
 			newSwagTagStringArgDef("ATTRIBUTE"),
@@ -77,8 +77,8 @@ var (
 		_type: swagTagTypeSuccess,
 		args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{PARAM_TYPE}", &swagTagArgParamTypeUnionChecker),
-			newSwagTagUnionArgDef("DATA_TYPE", &swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("{DATA_TYPE}", &swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("GO_TYPE", &swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
 		requiredArgsCount: 3,
@@ -87,8 +87,8 @@ var (
 		_type: swagTagTypeFailure,
 		args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{PARAM_TYPE}", &swagTagArgParamTypeUnionChecker),
-			newSwagTagUnionArgDef("DATA_TYPE", &swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("{DATA_TYPE}", &swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("GO_TYPE", &swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
 		requiredArgsCount: 3,
@@ -112,10 +112,8 @@ var (
 		_type: swagTagTypeHeader,
 		args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			// TODO: Check
-			// newSwagTagUnionArgDef("PARAM_TYPE", &swagTagArgParamTypeUnionChecker),
-			newSwagTagStringArgDef("{PARAM_TYPE}"),
-			newSwagTagUnionArgDef("HEADER_NAME", &swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("{DATA_TYPE}", &swagTagArgDataTypeUnionChecker),
+			newSwagTagStringArgDef("HEADER_NAME"),
 			newSwagTagStringArgDef("COMMENT"),
 		},
 		requiredArgsCount: 4,
@@ -349,6 +347,17 @@ var (
 		errorMessage: "should be `path, query, header, body, formData, or object`",
 	}
 	swagTagArgDataTypeUnionChecker = swagTagArgUnionChecker{
+		options: []swagTagArgChecker{
+			&swagTagArgConstStringChecker{value: "string"},
+			&swagTagArgConstStringChecker{value: "number"},
+			&swagTagArgConstStringChecker{value: "integer"},
+			&swagTagArgConstStringChecker{value: "boolean"},
+			&swagTagArgConstStringChecker{value: "file"},
+			&swagTagArgConstStringChecker{value: "object"},
+		},
+		errorMessage: "should be `string, number, integer, boolean, file or object`",
+	}
+	swagTagArgGoDataTypeUnionChecker = swagTagArgUnionChecker{
 		options: []swagTagArgChecker{
 			&swagTagArgConstStringChecker{value: "string"},
 			&swagTagArgConstStringChecker{value: "number"},

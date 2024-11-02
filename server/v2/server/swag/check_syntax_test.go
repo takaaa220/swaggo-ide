@@ -102,6 +102,15 @@ func TestCheckSyntax(t *testing.T) {
 				},
 				{
 					Range: protocol.Range{
+						Start: protocol.Position{Line: 7, Character: 15},
+						End:   protocol.Position{Line: 7, Character: 20},
+					},
+					Severity: 1,
+					Source:   "swag",
+					Message:  "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
+				},
+				{
+					Range: protocol.Range{
 						Start: protocol.Position{Line: 8, Character: 26},
 						End:   protocol.Position{Line: 8, Character: 29},
 					},
@@ -116,7 +125,7 @@ func TestCheckSyntax(t *testing.T) {
 					},
 					Severity: 1,
 					Source:   "swag",
-					Message:  "{PARAM_TYPE} should be `path, query, header, body, formData, or object`.",
+					Message:  "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
 				},
 				{
 					Range: protocol.Range{

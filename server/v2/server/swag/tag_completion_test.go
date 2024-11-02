@@ -66,7 +66,7 @@ func TestGetCompletionItems(t *testing.T) {
 						Label: "@Failure",
 						Kind:  protocol.CompletionItemKindKeyword,
 						TextEdit: &protocol.TextEdit{
-							NewText: "@Failure STATUS_CODE {PARAM_TYPE} DATA_TYPE",
+							NewText: "@Failure STATUS_CODE {DATA_TYPE} GO_TYPE",
 							Range: protocol.Range{
 								Start: protocol.Position{
 									Line:      0,
@@ -83,7 +83,7 @@ func TestGetCompletionItems(t *testing.T) {
 						Label: "@Header",
 						Kind:  protocol.CompletionItemKindKeyword,
 						TextEdit: &protocol.TextEdit{
-							NewText: "@Header STATUS_CODE {PARAM_TYPE} HEADER_NAME COMMENT",
+							NewText: "@Header STATUS_CODE {DATA_TYPE} HEADER_NAME COMMENT",
 							Range: protocol.Range{
 								Start: protocol.Position{
 									Line:      0,
@@ -117,7 +117,7 @@ func TestGetCompletionItems(t *testing.T) {
 						Label: "@Param",
 						Kind:  protocol.CompletionItemKindKeyword,
 						TextEdit: &protocol.TextEdit{
-							NewText: "@Param PARAM_NAME PARAM_TYPE DATA_TYPE REQUIRED DESCRIPTION",
+							NewText: "@Param PARAM_NAME PARAM_TYPE GO_TYPE REQUIRED DESCRIPTION",
 							Range: protocol.Range{
 								Start: protocol.Position{
 									Line:      0,
@@ -168,7 +168,7 @@ func TestGetCompletionItems(t *testing.T) {
 						Label: "@Success",
 						Kind:  protocol.CompletionItemKindKeyword,
 						TextEdit: &protocol.TextEdit{
-							NewText: "@Success STATUS_CODE {PARAM_TYPE} DATA_TYPE",
+							NewText: "@Success STATUS_CODE {DATA_TYPE} GO_TYPE",
 							Range: protocol.Range{
 								Start: protocol.Position{
 									Line:      0,
