@@ -47,25 +47,25 @@ type checkError struct {
 }
 
 func check(line string) (bool, []checkError) {
-	swagTag, splitArgs := split(line)
-	if !strings.HasPrefix(swagTag.Text, "@") {
+	firstToken, tokenizeArgs := tokenize(line)
+	if !strings.HasPrefix(firstToken.Text, "@") {
 		return false, []checkError{}
 	}
-	if splitArgs == nil {
+	if tokenizeArgs == nil {
 		return false, []checkError{}
 	}
-	swagTagDef := newSwagTagDef(strings.TrimPrefix(swagTag.Text, "@"))
+	swagTagDef := newSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
 	if swagTagDef._type == swagTagTypeUnknown {
 		return false, []checkError{}
 	}
 
 	checkErrors := []checkError{}
 	i := 0
-	for argSplitElement := range splitArgs(len(swagTagDef.args)) {
+	for argToken := range tokenizeArgs(len(swagTagDef.args)) {
 		def := swagTagDef.args[i]
 
 		// TODO: move to tag.go
-		text := trimBraces(argSplitElement.Text)
+		text := trimBraces(argToken.Text)
 
 		var arg swagTagArg
 		switch def.valueType {
@@ -81,8 +81,8 @@ func check(line string) (bool, []checkError) {
 		if !ok {
 			checkErrors = append(checkErrors, checkError{
 				message: strings.Join(errorMessages, ", "),
-				start:   argSplitElement.Start,
-				end:     argSplitElement.End,
+				start:   argToken.Start,
+				end:     argToken.End,
 			})
 		}
 
@@ -92,8 +92,8 @@ func check(line string) (bool, []checkError) {
 	if i < swagTagDef.requiredArgsCount {
 		checkErrors = []checkError{{
 			message: swagTagDef.errorMessage(),
-			start:   swagTag.Start,
-			end:     swagTag.End,
+			start:   firstToken.Start,
+			end:     firstToken.End,
 		}}
 	}
 

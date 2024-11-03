@@ -7,52 +7,77 @@ import (
 )
 
 func GetTagArgCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {
-	swagTag, splitArgs := split(line)
-	if !strings.HasPrefix(swagTag.Text, "@") || splitArgs == nil {
+	firstToken, tokenizeArgs := tokenize(line)
+	if !strings.HasPrefix(firstToken.Text, "@") || tokenizeArgs == nil {
 		return nil, nil
 	}
-	swagTagDef := newSwagTagDef(strings.TrimPrefix(swagTag.Text, "@"))
+	swagTagDef := newSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
 	if swagTagDef._type == swagTagTypeUnknown {
 		return nil, nil
 	}
 
-	if swagTag.Start <= int(position.Character) && int(position.Character) < swagTag.End {
+	if int(position.Character) < firstToken.End {
 		return nil, nil
 	}
 
+	lastTokenEnd := firstToken.End
+
 	candidates := []string{}
-	i := 0
-	found := false
-	for argSplitElement := range splitArgs(len(swagTagDef.args)) {
-		if argSplitElement.Start <= int(position.Character) && int(position.Character) < argSplitElement.End {
-			for _, argChecker := range swagTagDef.args[i].checkers {
-				candidates = append(candidates, inner(argChecker)...)
+	i := -1
+	positionIsLast := true
+	for argToken := range tokenizeArgs(len(swagTagDef.args)) {
+		i++
+		if int(position.Character) < argToken.End {
+			if lastTokenEnd <= int(position.Character) && int(position.Character) < argToken.Start {
+				for _, argChecker := range swagTagDef.args[i].checkers {
+					candidates = append(candidates, inner(argChecker)...)
+				}
 			}
 
-			found = true
+			positionIsLast = false
 			break
 		}
-		i++
+
+		lastTokenEnd = argToken.End
 	}
 
-	if !found && i < len(swagTagDef.args)-1 {
-		for _, argChecker := range swagTagDef.args[i].checkers {
+	if positionIsLast && i < len(swagTagDef.args)-1 {
+		for _, argChecker := range swagTagDef.args[i+1].checkers {
 			candidates = append(candidates, inner(argChecker)...)
 		}
 	}
 
-	return nil, nil
+	completionItems := make([]protocol.CompletionItem, len(candidates))
+	for i, candidate := range candidates {
+		completionItems[i] = protocol.CompletionItem{
+			Label: candidate,
+			Kind:  protocol.CompletionItemKindKeyword,
+			TextEdit: protocol.TextEdit{
+				Range: protocol.Range{
+					Start: protocol.Position{Line: position.Line, Character: position.Character},
+					End:   protocol.Position{Line: position.Line, Character: position.Character},
+				},
+				NewText: candidate,
+			},
+		}
+	}
+
+	return &protocol.CompletionList{
+		IsIncomplete: false,
+		Items:        completionItems,
+	}, nil
 }
 
 func inner(checker swagTagArgChecker) []string {
+	candidates := []string{}
 	switch c := checker.(type) {
 	case *swagTagArgUnionChecker:
 		for _, option := range c.options {
-			return inner(option)
+			candidates = append(candidates, inner(option)...)
 		}
 	case *swagTagArgConstStringChecker:
-		return []string{c.value}
+		candidates = append(candidates, c.value)
 	}
 
-	return []string{}
+	return candidates
 }

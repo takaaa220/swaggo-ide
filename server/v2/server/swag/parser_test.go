@@ -7,30 +7,30 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func Test_splitter_split(t *testing.T) {
+func Test_tokenizer_tokenize(t *testing.T) {
 	t.Parallel()
 
-	type splitterArgs struct {
+	type tokenizerArgs struct {
 		str           string
-		maxSplitCount int
+		maxTokenCount int
 	}
 
 	tests := []struct {
-		args                  splitterArgs
-		wantFirstSplitElement splitElement
-		wantRest              []splitElement
+		args           tokenizerArgs
+		wantFirstToken token
+		wantRest       []token
 	}{
 		{
-			args: splitterArgs{
+			args: tokenizerArgs{
 				str:           `@Param 			id   path      int  true  "Account ID"`,
-				maxSplitCount: -1,
+				maxTokenCount: -1,
 			},
-			wantFirstSplitElement: splitElement{
+			wantFirstToken: token{
 				Text:  "@Param",
 				Start: 0,
 				End:   6,
 			},
-			wantRest: []splitElement{
+			wantRest: []token{
 				{
 					Text:  "id",
 					Start: 10,
@@ -59,16 +59,16 @@ func Test_splitter_split(t *testing.T) {
 			},
 		},
 		{
-			args: splitterArgs{
+			args: tokenizerArgs{
 				str:           ` // @Param 			id   path      int  true  "Account ID"`,
-				maxSplitCount: -1,
+				maxTokenCount: -1,
 			},
-			wantFirstSplitElement: splitElement{
+			wantFirstToken: token{
 				Text:  "@Param",
 				Start: 4,
 				End:   10,
 			},
-			wantRest: []splitElement{
+			wantRest: []token{
 				{
 					Text:  "id",
 					Start: 14,
@@ -97,16 +97,16 @@ func Test_splitter_split(t *testing.T) {
 			},
 		},
 		{
-			args: splitterArgs{
+			args: tokenizerArgs{
 				str:           `@Success      200  {object} model.Account `,
-				maxSplitCount: -1,
+				maxTokenCount: -1,
 			},
-			wantFirstSplitElement: splitElement{
+			wantFirstToken: token{
 				Text:  "@Success",
 				Start: 0,
 				End:   8,
 			},
-			wantRest: []splitElement{
+			wantRest: []token{
 				{
 					Text:  "200",
 					Start: 14,
@@ -125,16 +125,16 @@ func Test_splitter_split(t *testing.T) {
 			},
 		},
 		{
-			args: splitterArgs{
+			args: tokenizerArgs{
 				str:           `@Router       /accounts/{id} [get]`,
-				maxSplitCount: -1,
+				maxTokenCount: -1,
 			},
-			wantFirstSplitElement: splitElement{
+			wantFirstToken: token{
 				Text:  "@Router",
 				Start: 0,
 				End:   7,
 			},
-			wantRest: []splitElement{
+			wantRest: []token{
 				{
 					Text:  "/accounts/{id}",
 					Start: 14,
@@ -148,28 +148,28 @@ func Test_splitter_split(t *testing.T) {
 			},
 		},
 		{
-			args: splitterArgs{
+			args: tokenizerArgs{
 				str:           `@Accept`,
-				maxSplitCount: 1,
+				maxTokenCount: 1,
 			},
-			wantFirstSplitElement: splitElement{
+			wantFirstToken: token{
 				Text:  "@Accept",
 				Start: 0,
 				End:   7,
 			},
-			wantRest: []splitElement{},
+			wantRest: []token{},
 		},
 		{
-			args: splitterArgs{
+			args: tokenizerArgs{
 				str:           `@Summary  hello world test`,
-				maxSplitCount: 1,
+				maxTokenCount: 1,
 			},
-			wantFirstSplitElement: splitElement{
+			wantFirstToken: token{
 				Text:  "@Summary",
 				Start: 0,
 				End:   8,
 			},
-			wantRest: []splitElement{
+			wantRest: []token{
 				{
 					Text:  "hello world test",
 					Start: 10,
@@ -178,16 +178,16 @@ func Test_splitter_split(t *testing.T) {
 			},
 		},
 		{
-			args: splitterArgs{
+			args: tokenizerArgs{
 				str:           `@Summary  hello`,
-				maxSplitCount: 3,
+				maxTokenCount: 3,
 			},
-			wantFirstSplitElement: splitElement{
+			wantFirstToken: token{
 				Text:  "@Summary",
 				Start: 0,
 				End:   8,
 			},
-			wantRest: []splitElement{
+			wantRest: []token{
 				{
 					Text:  "hello",
 					Start: 10,
@@ -198,17 +198,17 @@ func Test_splitter_split(t *testing.T) {
 	}
 	for _, tt := range tests {
 		tt := tt
-		t.Run(fmt.Sprintf("%s_%d", tt.args.str, tt.args.maxSplitCount), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s_%d", tt.args.str, tt.args.maxTokenCount), func(t *testing.T) {
 			t.Parallel()
 
-			firstSplitElement, splitRest := split(tt.args.str)
-			rest := []splitElement{}
-			for splitElement := range splitRest(tt.args.maxSplitCount) {
-				rest = append(rest, splitElement)
+			firstToken, tokenizeRest := tokenize(tt.args.str)
+			rest := []token{}
+			for token := range tokenizeRest(tt.args.maxTokenCount) {
+				rest = append(rest, token)
 			}
 
-			if diff := cmp.Diff(tt.wantFirstSplitElement, firstSplitElement); diff != "" {
-				t.Errorf("first split element mismatch (-want +got):\n%s", diff)
+			if diff := cmp.Diff(tt.wantFirstToken, firstToken); diff != "" {
+				t.Errorf("first tokenize element mismatch (-want +got):\n%s", diff)
 			}
 
 			if diff := cmp.Diff(tt.wantRest, rest); diff != "" {

@@ -53,20 +53,20 @@ var (
 	}
 	swagTagAccept = swagTagDef{
 		_type:             swagTagTypeAccept,
-		args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", &swagTagArgMimeTypeUnionChecker)},
+		args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
 		requiredArgsCount: 1,
 	}
 	swagTagProduce = swagTagDef{
 		_type:             swagTagTypeProduce,
-		args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", &swagTagArgMimeTypeUnionChecker)},
+		args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
 		requiredArgsCount: 1,
 	}
 	swagTagParam = swagTagDef{
 		_type: swagTagTypeParam,
 		args: []swagTagArgDef{
 			newSwagTagStringArgDef("PARAM_NAME"),
-			newSwagTagUnionArgDef("PARAM_TYPE", &swagTagArgParamTypeUnionChecker),
-			newSwagTagUnionArgDef("GO_TYPE", &swagTagArgGoDataTypeUnionChecker),
+			newSwagTagUnionArgDef("PARAM_TYPE", swagTagArgParamTypeUnionChecker),
+			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagBoolArgDef("REQUIRED"),
 			newSwagTagStringArgDef("DESCRIPTION"),
 			newSwagTagStringArgDef("ATTRIBUTE"),
@@ -77,8 +77,8 @@ var (
 		_type: swagTagTypeSuccess,
 		args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", &swagTagArgDataTypeUnionChecker),
-			newSwagTagUnionArgDef("GO_TYPE", &swagTagArgGoDataTypeUnionChecker),
+			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
 		requiredArgsCount: 3,
@@ -87,8 +87,8 @@ var (
 		_type: swagTagTypeFailure,
 		args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", &swagTagArgDataTypeUnionChecker),
-			newSwagTagUnionArgDef("GO_TYPE", &swagTagArgGoDataTypeUnionChecker),
+			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
 		requiredArgsCount: 3,
@@ -112,7 +112,7 @@ var (
 		_type: swagTagTypeHeader,
 		args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", &swagTagArgDataTypeUnionChecker),
+			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
 			newSwagTagStringArgDef("HEADER_NAME"),
 			newSwagTagStringArgDef("COMMENT"),
 		},
@@ -306,7 +306,7 @@ func (s *swagTagArgGoTypeChecker) check(arg swagTagArg) (bool, string) {
 
 var (
 	userDefinedType                = &swagTagArgGoTypeChecker{}
-	swagTagArgMimeTypeUnionChecker = swagTagArgUnionChecker{
+	swagTagArgMimeTypeUnionChecker = &swagTagArgUnionChecker{
 		options: []swagTagArgChecker{
 			&swagTagArgConstStringChecker{value: "json"},
 			&swagTagArgConstStringChecker{value: "application/json"},
@@ -335,7 +335,7 @@ var (
 		},
 		errorMessage: "should be valid mime type",
 	}
-	swagTagArgParamTypeUnionChecker = swagTagArgUnionChecker{
+	swagTagArgParamTypeUnionChecker = &swagTagArgUnionChecker{
 		options: []swagTagArgChecker{
 			&swagTagArgConstStringChecker{value: "path"},
 			&swagTagArgConstStringChecker{value: "query"},
@@ -346,7 +346,7 @@ var (
 		},
 		errorMessage: "should be `path, query, header, body, formData, or object`",
 	}
-	swagTagArgDataTypeUnionChecker = swagTagArgUnionChecker{
+	swagTagArgDataTypeUnionChecker = &swagTagArgUnionChecker{
 		options: []swagTagArgChecker{
 			&swagTagArgConstStringChecker{value: "string"},
 			&swagTagArgConstStringChecker{value: "number"},
@@ -357,7 +357,7 @@ var (
 		},
 		errorMessage: "should be `string, number, integer, boolean, file or object`",
 	}
-	swagTagArgGoDataTypeUnionChecker = swagTagArgUnionChecker{
+	swagTagArgGoDataTypeUnionChecker = &swagTagArgUnionChecker{
 		options: []swagTagArgChecker{
 			&swagTagArgConstStringChecker{value: "string"},
 			&swagTagArgConstStringChecker{value: "number"},

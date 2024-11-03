@@ -15,76 +15,76 @@ var (
 	})
 )
 
-type splitter struct {
+type tokenizer struct {
 	str     string
 	pointer int
 }
 
-func split(str string) (splitElement, func(maxSplitCount int) iter.Seq[splitElement]) {
-	splitter := &splitter{str: str, pointer: -1}
+func tokenize(str string) (token, func(maxTokenCount int) iter.Seq[token]) {
+	tokenizer := &tokenizer{str: str, pointer: -1}
 
 	for {
-		r, ok := splitter.peek()
+		r, ok := tokenizer.peek()
 		if !ok {
-			return splitElement{}, nil
+			return token{}, nil
 		}
 		if !unicode.IsSpace(r) {
 			break
 		}
-		splitter.next()
+		tokenizer.next()
 	}
 	for {
-		r, ok := splitter.peek()
+		r, ok := tokenizer.peek()
 		if !ok {
-			return splitElement{}, nil
+			return token{}, nil
 		}
 		if r != '/' {
 			break
 		}
-		splitter.next()
+		tokenizer.next()
 	}
 	for {
-		r, ok := splitter.peek()
+		r, ok := tokenizer.peek()
 		if !ok {
-			return splitElement{}, nil
+			return token{}, nil
 		}
 		if !unicode.IsSpace(r) {
 			break
 		}
-		splitter.next()
+		tokenizer.next()
 	}
 
 	substr := []rune{}
 	for {
-		r, ok := splitter.peek()
+		r, ok := tokenizer.peek()
 		if !ok || unicode.IsSpace(r) {
 			break
 		}
 
 		substr = append(substr, r)
-		splitter.next()
+		tokenizer.next()
 	}
 
-	return splitElement{
+	return token{
 			Text:  string(substr),
-			Start: splitter.pointer - len(substr) + 1,
-			End:   splitter.pointer + 1,
+			Start: tokenizer.pointer - len(substr) + 1,
+			End:   tokenizer.pointer + 1,
 		},
-		func(maxSplitCount int) iter.Seq[splitElement] {
-			return func(_yield func(splitElement) bool) {
-				yield := func(res splitElement) bool {
+		func(maxTokenCount int) iter.Seq[token] {
+			return func(_yield func(token) bool) {
+				yield := func(res token) bool {
 					b := _yield(res)
-					maxSplitCount--
+					maxTokenCount--
 					return b
 				}
 
 				substr := []rune{}
-				if maxSplitCount == 1 {
-					substr = splitter.getRest()
+				if maxTokenCount == 1 {
+					substr = tokenizer.getRest()
 				}
 
 				for {
-					r, ok := splitter.peek()
+					r, ok := tokenizer.peek()
 					if !ok {
 						break
 					}
@@ -92,47 +92,53 @@ func split(str string) (splitElement, func(maxSplitCount int) iter.Seq[splitElem
 					yieldCalled := false
 					switch {
 					case r == '"' && len(substr) == 0:
-						yield(splitter.splitSymbol('"', '"'))
+						if !yield(tokenizer.splitSymbol('"', '"')) {
+							return
+						}
 						yieldCalled = true
 					case unicode.IsSpace(r) || r == '\t':
 						if len(substr) > 0 {
-							yield(splitElement{
+							if !yield(token{
 								Text:  string(substr),
-								Start: splitter.pointer - len(substr) + 1,
-								End:   splitter.pointer + 1,
-							})
+								Start: tokenizer.pointer - len(substr) + 1,
+								End:   tokenizer.pointer + 1,
+							}) {
+								return
+							}
 							yieldCalled = true
 							substr = []rune{}
 						}
-						splitter.next()
+						tokenizer.next()
 					default:
 						substr = append(substr, r)
-						splitter.next()
+						tokenizer.next()
 					}
 
-					if yieldCalled && maxSplitCount == 1 {
-						substr = splitter.getRest()
+					if yieldCalled && maxTokenCount == 1 {
+						substr = tokenizer.getRest()
 					}
 				}
 
 				if len(substr) > 0 {
-					yield(splitElement{
+					if !yield(token{
 						Text:  string(substr),
-						Start: splitter.pointer - len(substr) + 1,
-						End:   splitter.pointer + 1,
-					})
+						Start: tokenizer.pointer - len(substr) + 1,
+						End:   tokenizer.pointer + 1,
+					}) {
+						return
+					}
 				}
 			}
 		}
 }
 
-type splitElement struct {
+type token struct {
 	Text  string
 	Start int
 	End   int
 }
 
-func (s *splitter) peek() (rune, bool) {
+func (s *tokenizer) peek() (rune, bool) {
 	if s.pointer >= len(s.str)-1 {
 		return 0, false
 	}
@@ -140,7 +146,7 @@ func (s *splitter) peek() (rune, bool) {
 	return rune(s.str[s.pointer+1]), true
 }
 
-func (s *splitter) next() (rune, bool) {
+func (s *tokenizer) next() (rune, bool) {
 	r, ok := s.peek()
 	if !ok {
 		return 0, false
@@ -150,10 +156,10 @@ func (s *splitter) next() (rune, bool) {
 	return r, true
 }
 
-func (s *splitter) splitSymbol(openSymbol, closeSymbol rune) splitElement {
+func (s *tokenizer) splitSymbol(openSymbol, closeSymbol rune) token {
 	r, ok := s.peek()
 	if r != openSymbol || !ok {
-		return splitElement{}
+		return token{}
 	}
 	s.next()
 
@@ -170,14 +176,14 @@ func (s *splitter) splitSymbol(openSymbol, closeSymbol rune) splitElement {
 		}
 	}
 
-	return splitElement{
+	return token{
 		Text:  string(substr),
 		Start: s.pointer - len(substr) + 1,
 		End:   s.pointer + 1,
 	}
 }
 
-func (s *splitter) getRest() []rune {
+func (s *tokenizer) getRest() []rune {
 	substr := []rune{}
 	for {
 		r, ok := s.peek()

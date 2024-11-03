@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/transport"
 	"golang.org/x/exp/jsonrpc2"
@@ -47,6 +49,7 @@ func (h *LSPHandlerOptions) Handle(ctx transport.Context, req *jsonrpc2.Request)
 	case "textDocument/completion":
 		return h.handleCompletion(ctx, req)
 	default:
+		protocol.NewLogger(protocol.MessageTypeLog).Error(ctx, fmt.Sprintf("unknown method: %s", req.Method))
 		return nil, jsonrpc2.ErrNotHandled
 	}
 }

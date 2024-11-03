@@ -40,9 +40,11 @@ func StartServer(ctx context.Context) error {
 				return nil
 			}
 
-			newText := info.Text.Update(p.ContentChanges)
+			go func() {
+				newText := info.Text.Update(p.ContentChanges)
 
-			cache.Set(p.TextDocument.Uri, NewFileInfo(p.TextDocument.Version, newText))
+				cache.Set(p.TextDocument.Uri, NewFileInfo(p.TextDocument.Version, newText))
+			}()
 
 			return nil
 		},
@@ -51,8 +53,6 @@ func StartServer(ctx context.Context) error {
 			return nil
 		},
 		HandleDidSaveTextDocument: func(ctx transport.Context, p *protocol.DidSaveTextDocumentParams) error {
-			cache.Delete(p.TextDocument.Uri)
-
 			cache.Set(p.TextDocument.Uri, NewFileInfo(0, NewFileText(p.Text)))
 
 			log.Println("Saved")
@@ -131,17 +131,9 @@ func handleCompletion(ctx transport.Context, p *protocol.CompletionParams) (prot
 
 	switch p.Context.TriggerCharacter {
 	case "@":
-		completionList, err := swag.GetTagCompletionItems(line, p.Position)
-		if err != nil {
-			return nil, err
-		}
-		return completionList, nil
+		return swag.GetTagCompletionItems(line, p.Position)
 	case " ":
-		completionList, err := swag.GetTagArgCompletionItems(line, p.Position)
-		if err != nil {
-			return nil, err
-		}
-		return completionList, nil
+		return swag.GetTagArgCompletionItems(line, p.Position)
 	default:
 		return nil, nil
 	}

@@ -42,5 +42,8 @@ export async function activate(context: ExtensionContext) {
 }
 
 export async function deactivate() {
-  await client?.stop();
+  if (!client) {
+    return undefined;
+  }
+  await client.stop();
 }

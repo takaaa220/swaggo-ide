@@ -60,10 +60,10 @@ func (c *FileCache) Get(uri protocol.DocumentUri) (FileInfo, bool) {
 }
 
 func (c *FileCache) Set(uri protocol.DocumentUri, new FileInfo) {
-	// current, ok := c.Get(uri)
-	// if ok && current.Version >= new.Version && new.Version != 0 {
-	// 	return
-	// }
+	current, ok := c.Get(uri)
+	if ok && current.Version >= new.Version && new.Version != 0 {
+		return
+	}
 
 	c.cache[uri] = new
 }
