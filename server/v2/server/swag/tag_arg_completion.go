@@ -30,7 +30,7 @@ func GetTagArgCompletionItems(line string, position protocol.Position) (*protoco
 		if int(position.Character) < argToken.End {
 			if lastTokenEnd <= int(position.Character) && int(position.Character) < argToken.Start {
 				for _, argChecker := range swagTagDef.args[i].checkers {
-					candidates = append(candidates, inner(argChecker)...)
+					candidates = append(candidates, argChecker.candidates()...)
 				}
 			}
 
@@ -43,7 +43,7 @@ func GetTagArgCompletionItems(line string, position protocol.Position) (*protoco
 
 	if positionIsLast && i < len(swagTagDef.args)-1 {
 		for _, argChecker := range swagTagDef.args[i+1].checkers {
-			candidates = append(candidates, inner(argChecker)...)
+			candidates = append(candidates, argChecker.candidates()...)
 		}
 	}
 
@@ -66,18 +66,4 @@ func GetTagArgCompletionItems(line string, position protocol.Position) (*protoco
 		IsIncomplete: false,
 		Items:        completionItems,
 	}, nil
-}
-
-func inner(checker swagTagArgChecker) []string {
-	candidates := []string{}
-	switch c := checker.(type) {
-	case *swagTagArgUnionChecker:
-		for _, option := range c.options {
-			candidates = append(candidates, inner(option)...)
-		}
-	case *swagTagArgConstStringChecker:
-		candidates = append(candidates, c.value)
-	}
-
-	return candidates
 }

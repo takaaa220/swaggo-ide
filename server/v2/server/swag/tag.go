@@ -232,7 +232,16 @@ func (s *swagTagArgDef) check(arg swagTagArg) (bool, []string) {
 type swagTagArgChecker interface {
 	// check returns check result and error message
 	check(arg swagTagArg) (bool, string)
+	candidates() []string
 }
+
+var (
+	_ swagTagArgChecker = &swagTagArgStringChecker{}
+	_ swagTagArgChecker = &swagTagArgIntChecker{}
+	_ swagTagArgChecker = &swagTagArgConstStringChecker{}
+	_ swagTagArgChecker = &swagTagArgUnionChecker{}
+	_ swagTagArgChecker = &swagTagArgGoTypeChecker{}
+)
 
 type swagTagArgStringChecker struct{}
 
@@ -242,6 +251,10 @@ func (s *swagTagArgStringChecker) check(arg swagTagArg) (bool, string) {
 	}
 
 	return true, ""
+}
+
+func (s *swagTagArgStringChecker) candidates() []string {
+	return []string{}
 }
 
 type swagTagArgIntChecker struct{}
@@ -258,6 +271,10 @@ func (s *swagTagArgIntChecker) check(arg swagTagArg) (bool, string) {
 	}
 
 	return true, ""
+}
+
+func (s *swagTagArgIntChecker) candidates() []string {
+	return []string{}
 }
 
 type swagTagArgConstStringChecker struct {
@@ -282,6 +299,10 @@ func (s *swagTagArgConstStringChecker) check(arg swagTagArg) (bool, string) {
 	return true, ""
 }
 
+func (s *swagTagArgConstStringChecker) candidates() []string {
+	return []string{s.value}
+}
+
 type swagTagArgUnionChecker struct {
 	options      []swagTagArgChecker
 	errorMessage string
@@ -297,11 +318,23 @@ func (s *swagTagArgUnionChecker) check(arg swagTagArg) (bool, string) {
 	return false, s.errorMessage
 }
 
+func (s *swagTagArgUnionChecker) candidates() []string {
+	candidates := []string{}
+	for _, option := range s.options {
+		candidates = append(candidates, option.candidates()...)
+	}
+	return candidates
+}
+
 type swagTagArgGoTypeChecker struct{}
 
 func (s *swagTagArgGoTypeChecker) check(arg swagTagArg) (bool, string) {
 	// TODO: Implement
 	return true, ""
+}
+
+func (s *swagTagArgGoTypeChecker) candidates() []string {
+	return []string{}
 }
 
 var (
