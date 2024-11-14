@@ -30,7 +30,7 @@ func GetTagArgCompletionItems(line string, position protocol.Position) (*protoco
 		i++
 		if int(position.Character) < argToken.End {
 			if lastTokenEnd <= int(position.Character) && int(position.Character) < argToken.Start {
-				candidates = append(candidates, swagTagDef.Args[i+1].Candidates()...)
+				candidates = append(candidates, swagTagDef.Args[i].Candidates()...)
 			}
 
 			positionIsLast = false
