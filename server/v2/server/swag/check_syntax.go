@@ -1,10 +1,10 @@
 package swag
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
+	"github.com/takaaa220/go-swag-ide/server/v2/server/swag/tag"
 	"github.com/takaaa220/go-swag-ide/server/v2/server/util"
 )
 
@@ -54,30 +54,25 @@ func check(line string) (bool, []checkError) {
 	if tokenizeArgs == nil {
 		return false, []checkError{}
 	}
-	swagTagDef := newSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
-	if swagTagDef._type == swagTagTypeUnknown {
+	swagTagDef := tag.NewSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
+	if !swagTagDef.IsValidTag() {
 		return false, []checkError{}
 	}
 
 	checkErrors := []checkError{}
 	i := 0
-	for argToken := range tokenizeArgs(len(swagTagDef.args)) {
-		def := swagTagDef.args[i]
+	for argToken := range tokenizeArgs(len(swagTagDef.Args)) {
+		def := swagTagDef.Args[i]
 
 		// TODO: move to tag.go
 		text := trimBraces(argToken.Text)
 
-		var arg swagTagArg
-		switch def.valueType {
-		case swagTagArgDefTypeString:
-			arg = &swagTagArgString{value: text}
-		case swagTagArgDefTypeGoType:
-			arg = &swagTagArgGoType{value: text}
-		default:
-			panic(fmt.Errorf("unknown argDef.valueType: %d", def.valueType))
+		arg, err := tag.NewSwagTagArg(def, text)
+		if err != nil {
+			panic(err)
 		}
 
-		ok, errorMessages := def.check(arg)
+		ok, errorMessages := def.Check(arg)
 		if !ok {
 			checkErrors = append(checkErrors, checkError{
 				message: strings.Join(errorMessages, ", "),
@@ -89,9 +84,9 @@ func check(line string) (bool, []checkError) {
 		i++
 	}
 
-	if i < swagTagDef.requiredArgsCount {
+	if i < swagTagDef.RequiredArgsCount() {
 		checkErrors = []checkError{{
-			message: swagTagDef.errorMessage(),
+			message: swagTagDef.ErrorMessage(),
 			start:   firstToken.Start,
 			end:     firstToken.End,
 		}}

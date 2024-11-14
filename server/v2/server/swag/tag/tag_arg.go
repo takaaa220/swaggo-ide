@@ -1,160 +1,9 @@
-package swag
+package tag
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
-)
-
-type swagTagDef struct {
-	_type             swagTagType
-	args              []swagTagArgDef
-	requiredArgsCount int
-}
-
-func newSwagTagDef(tagTypeString string) swagTagDef {
-	for _, tag := range swagTags {
-		if strings.ToLower(tagTypeString) == strings.ToLower(string(tag._type)) {
-			return tag
-		}
-	}
-
-	return swagTagUnknown
-}
-
-func (s *swagTagDef) errorMessage() string {
-	return fmt.Sprintf("Should be `%s`.", s.String())
-}
-
-func (s *swagTagDef) String() string {
-	argsNameList := make([]string, s.requiredArgsCount)
-	for i := range s.requiredArgsCount {
-		argsNameList[i] = s.args[i].label
-	}
-
-	return fmt.Sprintf("%s %s", s._type, strings.Join(argsNameList, " "))
-}
-
-var (
-	swagTagSummary = swagTagDef{
-		_type:             swagTagTypeSummary,
-		args:              []swagTagArgDef{newSwagTagStringArgDef("SUMMARY")},
-		requiredArgsCount: 1,
-	}
-	swagTagDescription = swagTagDef{
-		_type:             swagTagTypeDescription,
-		args:              []swagTagArgDef{newSwagTagStringArgDef("DESCRIPTION")},
-		requiredArgsCount: 1,
-	}
-	swagTagTags = swagTagDef{
-		_type:             swagTagTypeTags,
-		args:              []swagTagArgDef{newSwagTagStringArgDef("TAG1,TAG2")},
-		requiredArgsCount: 1,
-	}
-	swagTagAccept = swagTagDef{
-		_type:             swagTagTypeAccept,
-		args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
-		requiredArgsCount: 1,
-	}
-	swagTagProduce = swagTagDef{
-		_type:             swagTagTypeProduce,
-		args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
-		requiredArgsCount: 1,
-	}
-	swagTagParam = swagTagDef{
-		_type: swagTagTypeParam,
-		args: []swagTagArgDef{
-			newSwagTagStringArgDef("PARAM_NAME"),
-			newSwagTagUnionArgDef("PARAM_TYPE", swagTagArgParamTypeUnionChecker),
-			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
-			newSwagTagBoolArgDef("REQUIRED"),
-			newSwagTagStringArgDef("DESCRIPTION"),
-			newSwagTagStringArgDef("ATTRIBUTE"),
-		},
-		requiredArgsCount: 5,
-	}
-	swagTagSuccess = swagTagDef{
-		_type: swagTagTypeSuccess,
-		args: []swagTagArgDef{
-			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
-			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
-			newSwagTagStringArgDef("DESCRIPTION"),
-		},
-		requiredArgsCount: 3,
-	}
-	swagTagFailure = swagTagDef{
-		_type: swagTagTypeFailure,
-		args: []swagTagArgDef{
-			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
-			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
-			newSwagTagStringArgDef("DESCRIPTION"),
-		},
-		requiredArgsCount: 3,
-	}
-	swagTagRouter = swagTagDef{
-		_type: swagTagTypeRouter,
-		args: []swagTagArgDef{
-			newSwagTagStringArgDef("PATH"),
-			newSwagTagUnionArgDef("[HTTP_METHOD]", &swagTagArgHttpMethodUnionChecker),
-		},
-		requiredArgsCount: 2,
-	}
-	swagTagID = swagTagDef{
-		_type: swagTagTypeID,
-		args: []swagTagArgDef{
-			newSwagTagStringArgDef("ID"),
-		},
-		requiredArgsCount: 1,
-	}
-	swagTagHeader = swagTagDef{
-		_type: swagTagTypeHeader,
-		args: []swagTagArgDef{
-			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
-			newSwagTagStringArgDef("HEADER_NAME"),
-			newSwagTagStringArgDef("COMMENT"),
-		},
-		requiredArgsCount: 4,
-	}
-	swagTagUnknown = swagTagDef{
-		_type: swagTagTypeUnknown,
-	}
-	swagTags = []swagTagDef{
-		swagTagSummary,
-		swagTagDescription,
-		swagTagTags,
-		swagTagAccept,
-		swagTagProduce,
-		swagTagParam,
-		swagTagSuccess,
-		swagTagFailure,
-		swagTagRouter,
-		swagTagID,
-		swagTagHeader,
-	}
-)
-
-type swagTagType string
-
-func (s swagTagType) String() string {
-	return "@" + string(s)
-}
-
-const (
-	swagTagTypeSummary     swagTagType = "Summary"
-	swagTagTypeDescription swagTagType = "Description"
-	swagTagTypeTags        swagTagType = "Tags"
-	swagTagTypeAccept      swagTagType = "Accept"
-	swagTagTypeProduce     swagTagType = "Produce"
-	swagTagTypeParam       swagTagType = "Param"
-	swagTagTypeSuccess     swagTagType = "Success"
-	swagTagTypeFailure     swagTagType = "Failure"
-	swagTagTypeRouter      swagTagType = "Router"
-	swagTagTypeID          swagTagType = "ID"
-	swagTagTypeHeader      swagTagType = "Header"
-	swagTagTypeUnknown     swagTagType = "-"
 )
 
 type swagTagArgDefType int
@@ -218,7 +67,7 @@ func newSwagTagUnionArgDef(label string, checker *swagTagArgUnionChecker, option
 	}
 }
 
-func (s *swagTagArgDef) check(arg swagTagArg) (bool, []string) {
+func (s *swagTagArgDef) Check(arg swagTagArg) (bool, []string) {
 	errors := []string{}
 	for _, checker := range s.checkers {
 		if ok, errorMessage := checker.check(arg); !ok {
@@ -227,6 +76,14 @@ func (s *swagTagArgDef) check(arg swagTagArg) (bool, []string) {
 	}
 
 	return len(errors) == 0, errors
+}
+
+func (s *swagTagArgDef) Candidates() []string {
+	candidates := []string{}
+	for _, checker := range s.checkers {
+		candidates = append(candidates, checker.candidates()...)
+	}
+	return candidates
 }
 
 type swagTagArgChecker interface {
@@ -427,6 +284,17 @@ var (
 
 type swagTagArg interface {
 	TagArgType() string
+}
+
+func NewSwagTagArg(def swagTagArgDef, text string) (swagTagArg, error) {
+	switch def.valueType {
+	case swagTagArgDefTypeString:
+		return &swagTagArgString{value: text}, nil
+	case swagTagArgDefTypeGoType:
+		return &swagTagArgGoType{value: text}, nil
+	default:
+		return nil, fmt.Errorf("unknown argDef.valueType: %d", def.valueType)
+	}
 }
 
 type swagTagArgString struct {

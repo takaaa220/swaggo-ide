@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
+	"github.com/takaaa220/go-swag-ide/server/v2/server/swag/tag"
 )
 
 func GetTagArgCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {
@@ -11,8 +12,8 @@ func GetTagArgCompletionItems(line string, position protocol.Position) (*protoco
 	if !strings.HasPrefix(firstToken.Text, "@") || tokenizeArgs == nil {
 		return nil, nil
 	}
-	swagTagDef := newSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
-	if swagTagDef._type == swagTagTypeUnknown {
+	swagTagDef := tag.NewSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
+	if !swagTagDef.IsValidTag() {
 		return nil, nil
 	}
 
@@ -25,13 +26,11 @@ func GetTagArgCompletionItems(line string, position protocol.Position) (*protoco
 	candidates := []string{}
 	i := -1
 	positionIsLast := true
-	for argToken := range tokenizeArgs(len(swagTagDef.args)) {
+	for argToken := range tokenizeArgs(len(swagTagDef.Args)) {
 		i++
 		if int(position.Character) < argToken.End {
 			if lastTokenEnd <= int(position.Character) && int(position.Character) < argToken.Start {
-				for _, argChecker := range swagTagDef.args[i].checkers {
-					candidates = append(candidates, argChecker.candidates()...)
-				}
+				candidates = append(candidates, swagTagDef.Args[i+1].Candidates()...)
 			}
 
 			positionIsLast = false
@@ -41,10 +40,8 @@ func GetTagArgCompletionItems(line string, position protocol.Position) (*protoco
 		lastTokenEnd = argToken.End
 	}
 
-	if positionIsLast && i < len(swagTagDef.args)-1 {
-		for _, argChecker := range swagTagDef.args[i+1].checkers {
-			candidates = append(candidates, argChecker.candidates()...)
-		}
+	if positionIsLast && i < len(swagTagDef.Args)-1 {
+		candidates = append(candidates, swagTagDef.Args[i+1].Candidates()...)
 	}
 
 	completionItems := make([]protocol.CompletionItem, len(candidates))

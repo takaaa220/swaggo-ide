@@ -4,13 +4,14 @@ import (
 	"sort"
 
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
+	"github.com/takaaa220/go-swag-ide/server/v2/server/swag/tag"
 )
 
 func GetTagCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {
-	completionItems := make([]protocol.CompletionItem, len(swagTags))
-	for i, tag := range swagTags {
+	completionItems := make([]protocol.CompletionItem, len(tag.SwagTags))
+	for i, tag := range tag.SwagTags {
 		completionItems[i] = protocol.CompletionItem{
-			Label: tag._type.String(),
+			Label: tag.Type.String(),
 			Kind:  protocol.CompletionItemKindKeyword,
 			TextEdit: &protocol.TextEdit{
 				NewText: tag.String(),
