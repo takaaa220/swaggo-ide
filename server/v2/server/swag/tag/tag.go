@@ -75,7 +75,7 @@ var (
 			newSwagTagUnionArgDef("PARAM_TYPE", swagTagArgParamTypeUnionChecker),
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagBoolArgDef("REQUIRED"),
-			newSwagTagStringArgDef("DESCRIPTION"),
+			wrapArgDefWithBraces('"', newSwagTagStringArgDef("DESCRIPTION")),
 			newSwagTagStringArgDef("ATTRIBUTE"),
 		},
 		requiredArgsCount: 5,
@@ -84,7 +84,7 @@ var (
 		Type: swagTagTypeSuccess,
 		Args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
+			wrapArgDefWithBraces('{', newSwagTagUnionArgDef("DATA_TYPE", swagTagArgDataTypeUnionChecker)),
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
@@ -94,7 +94,7 @@ var (
 		Type: swagTagTypeFailure,
 		Args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
+			wrapArgDefWithBraces('{', newSwagTagUnionArgDef("DATA_TYPE", swagTagArgDataTypeUnionChecker)),
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
@@ -104,7 +104,7 @@ var (
 		Type: swagTagTypeRouter,
 		Args: []swagTagArgDef{
 			newSwagTagStringArgDef("PATH"),
-			newSwagTagUnionArgDef("[HTTP_METHOD]", &swagTagArgHttpMethodUnionChecker),
+			wrapArgDefWithBraces('[', newSwagTagUnionArgDef("HTTP_METHOD", &swagTagArgHttpMethodUnionChecker)),
 		},
 		requiredArgsCount: 2,
 	}
@@ -119,7 +119,7 @@ var (
 		Type: swagTagTypeHeader,
 		Args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
-			newSwagTagUnionArgDef("{DATA_TYPE}", swagTagArgDataTypeUnionChecker),
+			wrapArgDefWithBraces('{', newSwagTagUnionArgDef("DATA_TYPE", swagTagArgDataTypeUnionChecker)),
 			newSwagTagStringArgDef("HEADER_NAME"),
 			newSwagTagStringArgDef("COMMENT"),
 		},

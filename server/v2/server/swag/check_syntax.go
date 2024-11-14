@@ -64,10 +64,7 @@ func check(line string) (bool, []checkError) {
 	for argToken := range tokenizeArgs(len(swagTagDef.Args)) {
 		def := swagTagDef.Args[i]
 
-		// TODO: move to tag.go
-		text := trimBraces(argToken.Text)
-
-		arg, err := tag.NewSwagTagArg(def, text)
+		arg, err := tag.NewSwagTagArg(def, argToken.Text)
 		if err != nil {
 			panic(err)
 		}

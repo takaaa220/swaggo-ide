@@ -3,16 +3,6 @@ package swag
 import (
 	"iter"
 	"unicode"
-
-	"github.com/takaaa220/go-swag-ide/server/v2/server/util"
-)
-
-var (
-	trimBraces = util.TrimBraces([][]rune{
-		{'{', '}'},
-		{'[', ']'},
-		{'"', '"'},
-	})
 )
 
 type tokenizer struct {

@@ -117,7 +117,7 @@ func TestGetCompletionItems(t *testing.T) {
 						Label: "@Param",
 						Kind:  protocol.CompletionItemKindKeyword,
 						TextEdit: &protocol.TextEdit{
-							NewText: "@Param PARAM_NAME PARAM_TYPE GO_TYPE REQUIRED DESCRIPTION",
+							NewText: "@Param PARAM_NAME PARAM_TYPE GO_TYPE REQUIRED \"DESCRIPTION\"",
 							Range: protocol.Range{
 								Start: protocol.Position{
 									Line:      0,

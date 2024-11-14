@@ -67,6 +67,34 @@ func newSwagTagUnionArgDef(label string, checker *swagTagArgUnionChecker, option
 	}
 }
 
+func wrapArgDefWithBraces(openBrace rune, argDef swagTagArgDef) swagTagArgDef {
+	braces := map[rune]rune{
+		'[': ']',
+		'{': '}',
+		'"': '"',
+	}
+	closeBrace, ok := braces[openBrace]
+	if !ok {
+		panic(fmt.Errorf("invalid openBrace: %c", openBrace))
+	}
+
+	checkers := argDef.checkers
+	for i, checker := range checkers {
+
+		checkers[i] = &swagTagArgWithBracesChecker{
+			openBrace:  openBrace,
+			closeBrace: closeBrace,
+			checker:    checker,
+		}
+	}
+
+	return swagTagArgDef{
+		valueType: argDef.valueType,
+		label:     string(openBrace) + argDef.label + string(closeBrace),
+		checkers:  checkers,
+	}
+}
+
 func (s *swagTagArgDef) Check(arg swagTagArg) (bool, []string) {
 	errors := []string{}
 	for _, checker := range s.checkers {
@@ -98,6 +126,7 @@ var (
 	_ swagTagArgChecker = &swagTagArgConstStringChecker{}
 	_ swagTagArgChecker = &swagTagArgUnionChecker{}
 	_ swagTagArgChecker = &swagTagArgGoTypeChecker{}
+	_ swagTagArgChecker = &swagTagArgWithBracesChecker{}
 )
 
 type swagTagArgStringChecker struct{}
@@ -112,6 +141,33 @@ func (s *swagTagArgStringChecker) check(arg swagTagArg) (bool, string) {
 
 func (s *swagTagArgStringChecker) candidates() []string {
 	return []string{}
+}
+
+type swagTagArgWithBracesChecker struct {
+	openBrace  rune
+	closeBrace rune
+	checker    swagTagArgChecker
+}
+
+func (s *swagTagArgWithBracesChecker) check(arg swagTagArg) (bool, string) {
+	stringArg, ok := arg.(*swagTagArgString)
+	if !ok {
+		return false, "should be string"
+	}
+
+	if len(stringArg.value) < 2 || rune(stringArg.value[0]) != s.openBrace || rune(stringArg.value[len(stringArg.value)-1]) != s.closeBrace {
+		return false, "should be enclosed in braces"
+	}
+
+	return s.checker.check(&swagTagArgString{value: stringArg.value[1 : len(stringArg.value)-1]})
+}
+
+func (s *swagTagArgWithBracesChecker) candidates() []string {
+	candidates := s.checker.candidates()
+	for i, candidate := range candidates {
+		candidates[i] = string(s.openBrace) + candidate + string(s.closeBrace)
+	}
+	return candidates
 }
 
 type swagTagArgIntChecker struct{}
