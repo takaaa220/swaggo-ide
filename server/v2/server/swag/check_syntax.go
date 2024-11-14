@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
+	"github.com/takaaa220/go-swag-ide/server/v2/server/swag/parser"
 	"github.com/takaaa220/go-swag-ide/server/v2/server/swag/tag"
 	"github.com/takaaa220/go-swag-ide/server/v2/server/util"
 )
@@ -47,7 +48,7 @@ type checkError struct {
 }
 
 func check(line string) (bool, []checkError) {
-	firstToken, tokenizeArgs := tokenize(line)
+	firstToken, tokenizeArgs := parser.Tokenize(line)
 	if !strings.HasPrefix(firstToken.Text, "@") {
 		return false, []checkError{}
 	}

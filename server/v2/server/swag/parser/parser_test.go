@@ -1,4 +1,4 @@
-package swag
+package parser
 
 import (
 	"fmt"
@@ -201,7 +201,7 @@ func Test_tokenizer_tokenize(t *testing.T) {
 		t.Run(fmt.Sprintf("%s_%d", tt.args.str, tt.args.maxTokenCount), func(t *testing.T) {
 			t.Parallel()
 
-			firstToken, tokenizeRest := tokenize(tt.args.str)
+			firstToken, tokenizeRest := Tokenize(tt.args.str)
 			rest := []token{}
 			for token := range tokenizeRest(tt.args.maxTokenCount) {
 				rest = append(rest, token)

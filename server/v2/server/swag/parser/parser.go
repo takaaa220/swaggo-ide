@@ -1,4 +1,4 @@
-package swag
+package parser
 
 import (
 	"iter"
@@ -10,7 +10,7 @@ type tokenizer struct {
 	pointer int
 }
 
-func tokenize(str string) (token, func(maxTokenCount int) iter.Seq[token]) {
+func Tokenize(str string) (token, func(maxTokenCount int) iter.Seq[token]) {
 	tokenizer := &tokenizer{str: str, pointer: -1}
 
 	for {

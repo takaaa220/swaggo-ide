@@ -4,11 +4,12 @@ import (
 	"strings"
 
 	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
+	"github.com/takaaa220/go-swag-ide/server/v2/server/swag/parser"
 	"github.com/takaaa220/go-swag-ide/server/v2/server/swag/tag"
 )
 
 func GetTagArgCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {
-	firstToken, tokenizeArgs := tokenize(line)
+	firstToken, tokenizeArgs := parser.Tokenize(line)
 	if !strings.HasPrefix(firstToken.Text, "@") || tokenizeArgs == nil {
 		return nil, nil
 	}
