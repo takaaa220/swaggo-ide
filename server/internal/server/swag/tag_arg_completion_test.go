@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
+	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/protocol"
 )
 
 func TestGetTagArgCompletionItems(t *testing.T) {

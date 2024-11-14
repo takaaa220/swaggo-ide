@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 
-	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/protocol"
-	"github.com/takaaa220/go-swag-ide/server/v2/server-sdk/transport"
+	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/transport"
 	"golang.org/x/exp/jsonrpc2"
 )
 
