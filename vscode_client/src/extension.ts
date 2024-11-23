@@ -21,14 +21,14 @@ export async function activate(context: ExtensionContext) {
     synchronize: {
       fileEvents: [workspace.createFileSystemWatcher("**/*.go")],
     },
-    outputChannel: Window.createOutputChannel("LSP Logs"),
-    traceOutputChannel: Window.createOutputChannel("LSP Trace"),
+    outputChannel: Window.createOutputChannel("Go Swag"),
+    traceOutputChannel: Window.createOutputChannel("Go Swag Trace"),
   };
 
   try {
     client = new LanguageClient(
-      "go-swag-lsp-client",
-      "Go Swag LSP Client",
+      "go-swag",
+      "Go Swag",
       serverOptions,
       clientOptions
     );
