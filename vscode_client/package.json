@@ -8,6 +8,11 @@
     "vscode": "^1.95.0"
   },
   "main": "./out/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/takaaa220/go-swag-ide.git",
+    "directory": "vscode_client"
+  },
   "activationEvents": [
     "onLanguage:go"
   ],
