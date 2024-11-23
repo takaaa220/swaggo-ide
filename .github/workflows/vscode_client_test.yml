@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "vscode_client/**"
-  pull_request:
-    paths:
-      - "vscode_client/**"
+  #   paths:
+  #     - "vscode_client/**"
+  # pull_request:
+  #   paths:
+  #     - "vscode_client/**"
 
 jobs:
   type-check:
