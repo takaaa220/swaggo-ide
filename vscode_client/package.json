@@ -37,10 +37,11 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "pnpm run compile",
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p .",
     "check": "tsc -p . --noEmit",
-    "publish": "vsce publish --no-dependencies"
+    "publish": "vsce publish",
+    "package": "vsce package"
   },
   "author": "takaaa220",
   "license": "Apache-2.0",
