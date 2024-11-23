@@ -4,11 +4,11 @@ import (
 	"context"
 	"log"
 
-	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/handler"
-	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/protocol"
-	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/transport"
-	"github.com/takaaa220/go-swag-ide/server/internal/server/swag"
-	"github.com/takaaa220/go-swag-ide/server/internal/server/util"
+	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/handler"
+	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/swag"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/util"
 )
 
 var (

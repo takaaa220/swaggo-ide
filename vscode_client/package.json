@@ -1,8 +1,8 @@
 {
-  "name": "go-swag-language-server",
-  "displayName": "Go Swag Language Server Client",
-  "description": "A VSCode extension for go-swag on LSP",
-  "version": "0.0.2",
+  "name": "swaggo-language-server-client",
+  "displayName": "Swaggo Language Server Client",
+  "description": "A VSCode extension for Swaggo",
+  "version": "0.0.1",
   "publisher": "takaaa220",
   "engines": {
     "vscode": "^1.95.0"
@@ -10,7 +10,7 @@
   "main": "./out/extension.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/takaaa220/go-swag-ide.git",
+    "url": "https://github.com/takaaa220/swaggo-ide.git",
     "directory": "vscode_client"
   },
   "activationEvents": [

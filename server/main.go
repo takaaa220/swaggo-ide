@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/takaaa220/go-swag-ide/server/internal/server"
+	"github.com/takaaa220/swaggo-ide/server/internal/server"
 )
 
 func main() {

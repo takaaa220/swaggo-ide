@@ -27,7 +27,7 @@ export async function activate(context: ExtensionContext) {
 
   try {
     client = new LanguageClient(
-      "go-swag",
+      "swaggo",
       "Go Swag",
       serverOptions,
       clientOptions

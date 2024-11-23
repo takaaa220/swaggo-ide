@@ -3,7 +3,7 @@ package server
 import (
 	"strings"
 
-	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
 )
 
 type FileCache struct {

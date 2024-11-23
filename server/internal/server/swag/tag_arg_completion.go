@@ -3,9 +3,9 @@ package swag
 import (
 	"strings"
 
-	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/protocol"
-	"github.com/takaaa220/go-swag-ide/server/internal/server/swag/parser"
-	"github.com/takaaa220/go-swag-ide/server/internal/server/swag/tag"
+	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/swag/parser"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/swag/tag"
 )
 
 func GetTagArgCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {

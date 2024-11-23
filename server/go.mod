@@ -1,4 +1,4 @@
-module github.com/takaaa220/go-swag-ide/server
+module github.com/takaaa220/swaggo-ide/server
 
 go 1.23.1
 

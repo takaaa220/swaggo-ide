@@ -3,8 +3,8 @@ package handler
 import (
 	"fmt"
 
-	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/protocol"
-	"github.com/takaaa220/go-swag-ide/server/internal/server-sdk/transport"
+	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
 	"golang.org/x/exp/jsonrpc2"
 )
 
