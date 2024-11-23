@@ -37,7 +37,7 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 					},
 					{
 						Kind:  protocol.CompletionItemKindKeyword,
-						Label: "qury",
+						Label: "query",
 					},
 					{
 						Kind:  protocol.CompletionItemKindKeyword,
