@@ -1,5 +1,5 @@
 {
-  "name": "go-swag-ide-client",
+  "name": "go-swag-for-vscode",
   "displayName": "Go Swag For Vscode",
   "description": "A VSCode extension for go-swag on LSP",
   "version": "0.0.1",
