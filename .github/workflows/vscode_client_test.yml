@@ -6,7 +6,7 @@ on:
       - main
   #   paths:
   #     - "vscode_client/**"
-  # pull_request:
+  pull_request:
   #   paths:
   #     - "vscode_client/**"
 
