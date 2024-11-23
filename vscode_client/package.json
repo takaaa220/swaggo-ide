@@ -1,6 +1,6 @@
 {
   "name": "go-swag-for-vscode",
-  "displayName": "Go Swag For Vscode",
+  "displayName": "Go Swag Language Server Client For VSCode",
   "description": "A VSCode extension for go-swag on LSP",
   "version": "0.0.1",
   "publisher": "takaaa220",
