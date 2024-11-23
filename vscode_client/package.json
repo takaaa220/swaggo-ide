@@ -43,7 +43,7 @@
     "publish": "vsce publish --no-dependencies"
   },
   "author": "takaaa220",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@vscode/vsce": "^3.2.1",
     "vscode-languageclient": "^9.0.1"
