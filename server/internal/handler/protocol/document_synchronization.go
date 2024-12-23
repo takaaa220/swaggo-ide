@@ -1,7 +1,5 @@
 package protocol
 
-import "github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
-
 // TextDocumentClientCapabilities defines capabilities related to text documents.
 type TextDocumentClientCapabilities struct {
 	Synchronization TextDocumentSyncClientCapabilities `json:"synchronization,omitempty"`
@@ -36,8 +34,6 @@ type TextDocumentSyncOptions struct {
 	Save      SaveOptions          `json:"save,omitempty"`
 }
 
-type DidOpenTextDocumentFunc func(context transport.Context, params *DidOpenTextDocumentParams) error
-
 type DidOpenTextDocumentParams struct {
 	TextDocument TextDocumentItem `json:"textDocument"`
 }
@@ -53,8 +49,6 @@ type DidChangeTextDocumentParams struct {
 	TextDocument   VersionedTextDocumentIdentifier  `json:"textDocument"`
 	ContentChanges []TextDocumentContentChangeEvent `json:"contentChanges"`
 }
-
-type DidChangeTextDocumentFunc func(context transport.Context, params *DidChangeTextDocumentParams) error
 
 type VersionedTextDocumentIdentifier struct {
 	TextDocumentIdentifier
@@ -108,8 +102,6 @@ type TextDocumentSaveRegistrationOptions struct {
 	IncludeText bool `json:"includeText,omitempty"`
 }
 
-type TextDocumentDidSaveFunc func(context transport.Context, params *DidSaveTextDocumentParams) error
-
 type DidSaveTextDocumentParams struct {
 	TextDocument TextDocumentIdentifier `json:"textDocument"`
 	Text         string                 `json:"text,omitempty"`
@@ -118,5 +110,3 @@ type DidSaveTextDocumentParams struct {
 type DidCloseTextDocumentParams struct {
 	TextDocument TextDocumentIdentifier `json:"textDocument"`
 }
-
-type TextDocumentDidCloseFunc func(context transport.Context, params *DidCloseTextDocumentParams) error

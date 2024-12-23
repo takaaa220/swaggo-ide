@@ -1,9 +1,5 @@
 package protocol
 
-import "github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
-
-type CompletionFunc func(transport.Context, *CompletionParams) (CompletionResult, error)
-
 // CompletionOptions represents options for completion requests.
 type CompletionOptions struct {
 	TriggerCharacters   []string             `json:"triggerCharacters,omitempty"`

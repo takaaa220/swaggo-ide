@@ -1,11 +1,7 @@
 package protocol
 
-import "github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
-
 // see: https://www.jsonrpc.org/specification
 // see: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
-
-type InitializeFunc func(transport.Context, *InitializeParams) (*InitializeResult, error)
 
 // InitializeParams defines the parameters sent in an initialize request.
 type InitializeParams struct {

@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server"
+	"github.com/takaaa220/swaggo-ide/server/internal"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 
 	ctx := context.Background()
 
-	if err := server.StartServer(ctx); err != nil {
+	if err := internal.StartServer(ctx); err != nil {
 		log.Fatal(fmt.Errorf("failed to start server: %w", err))
 	}
 }

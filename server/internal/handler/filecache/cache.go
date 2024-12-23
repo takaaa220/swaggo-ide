@@ -1,9 +1,9 @@
-package server
+package filecache
 
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
 )
 
 type FileCache struct {
