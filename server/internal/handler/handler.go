@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"io"
-	"log"
 	"os"
 	"time"
 
@@ -14,20 +13,25 @@ import (
 )
 
 func NewLSPHandler(opts LSPHandlerOptions) *LSPHandler {
-	logWriter := opts.logWriter
-	if logWriter == nil {
-		logWriter = os.Stderr
+	var logWriter io.Writer = os.Stderr
+	if opts.LogWriter != nil {
+		logWriter = opts.LogWriter
 	}
 
-	checkSyntaxDebounce := opts.checkSyntaxDebounce
-	if checkSyntaxDebounce == 0 {
-		checkSyntaxDebounce = 100 * time.Millisecond
+	checkSyntaxDebounce := 100 * time.Millisecond
+	if opts.CheckSyntaxDebounce > 0 {
+		checkSyntaxDebounce = opts.CheckSyntaxDebounce
+	}
+
+	logLevel := LogWarn
+	if opts.LogLevel != LogWarn {
+		logLevel = opts.LogLevel
 	}
 
 	h := &LSPHandler{
 		checkSyntaxDebounce: checkSyntaxDebounce,
 		checkSyntaxReq:      make(chan CheckSyntaxRequest),
-		logger:              log.New(logWriter, "", log.LstdFlags),
+		logger:              NewLogger(logWriter, logLevel),
 	}
 
 	go h.checkSyntax()
@@ -35,7 +39,7 @@ func NewLSPHandler(opts LSPHandlerOptions) *LSPHandler {
 }
 
 type LSPHandler struct {
-	logger              *log.Logger
+	logger              *logger
 	conn                *jsonrpc2.Connection
 	fileCache           *filecache.FileCache
 	checkSyntaxReq      chan CheckSyntaxRequest
@@ -44,8 +48,9 @@ type LSPHandler struct {
 }
 
 type LSPHandlerOptions struct {
-	checkSyntaxDebounce time.Duration
-	logWriter           io.Writer
+	CheckSyntaxDebounce time.Duration
+	LogLevel            logLevel
+	LogWriter           io.Writer
 }
 
 func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, error) {
@@ -83,7 +88,7 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 	case "textDocument/completion":
 		return h.HandleCompletion(ctx, req)
 	default:
-		h.logger.Printf("method %s not supported", req.Method)
+		h.logger.Debugf("method %s not supported", req.Method)
 		return nil, jsonrpc2.ErrNotHandled
 	}
 }
@@ -95,7 +100,7 @@ func (h *LSPHandler) SetConnection(conn *jsonrpc2.Connection) {
 }
 
 func (h *LSPHandler) CloseConnection() error {
-	h.logger.Println("CloseConnection")
+	h.logger.Debugf("CloseConnection")
 
 	if h.conn == nil {
 		return nil
@@ -155,7 +160,7 @@ func (h *LSPHandler) checkSyntax() {
 						Uri:         uri,
 						Diagnostics: swag.CheckSyntax(string(uri), text),
 					}); err != nil {
-					h.logger.Println(err)
+					h.logger.Error(err)
 				}
 			}(ctx, req.uri, req.text)
 		}
