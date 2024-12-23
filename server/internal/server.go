@@ -1,15 +1,16 @@
-package server
+package internal
 
 import (
 	"context"
 	"log"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server/transport"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/transport"
 	"golang.org/x/exp/jsonrpc2"
 )
 
 func StartServer(ctx context.Context) error {
-	handler := NewLSPHandler(LSPHandlerOptions{})
+	handler := handler.NewLSPHandler(handler.LSPHandlerOptions{})
 
 	binder := transport.NewBinder(handler)
 	listener := transport.NewStdListener()

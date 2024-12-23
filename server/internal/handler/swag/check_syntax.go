@@ -3,10 +3,10 @@ package swag
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/server/swag/parser"
-	"github.com/takaaa220/swaggo-ide/server/internal/server/swag/tag"
-	"github.com/takaaa220/swaggo-ide/server/internal/server/util"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/parser"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/tag"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/util"
 )
 
 func CheckSyntax(uri string, src string) []protocol.Diagnostics {

@@ -1,13 +1,13 @@
-package server
+package handler
 
 import (
 	"context"
 	"encoding/json"
 	"log"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server/filecache"
-	"github.com/takaaa220/swaggo-ide/server/internal/server/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/server/swag"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/filecache"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag"
 	"golang.org/x/exp/jsonrpc2"
 )
 

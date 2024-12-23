@@ -1,9 +1,9 @@
-package server
+package handler
 
 import (
 	"context"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server/filecache"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/filecache"
 	"golang.org/x/exp/jsonrpc2"
 )
 

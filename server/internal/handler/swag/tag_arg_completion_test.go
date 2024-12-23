@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/takaaa220/swaggo-ide/server/internal/server/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
 )
 
 func TestGetTagArgCompletionItems(t *testing.T) {
