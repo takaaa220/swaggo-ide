@@ -18,17 +18,16 @@ func (h *LSPHandler) HandleDidChangeTextDocument(ctx context.Context, req *jsonr
 	return h.doDidChangeTextDocument(ctx, &params)
 }
 
-func (h *LSPHandler) doDidChangeTextDocument(_ context.Context, p *protocol.DidChangeTextDocumentParams) error {
+func (h *LSPHandler) doDidChangeTextDocument(ctx context.Context, p *protocol.DidChangeTextDocumentParams) error {
 	info, found := h.fileCache.Get(p.TextDocument.Uri)
 	if !found {
 		return nil
 	}
 
-	go func() {
+	go func(ctx context.Context) {
 		newText := info.Text.Update(p.ContentChanges)
-
 		h.fileCache.Set(p.TextDocument.Uri, filecache.NewFileInfo(p.TextDocument.Version, newText))
-	}()
+	}(ctx)
 
 	return nil
 }
