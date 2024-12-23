@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/protocol"
 )
 
 func TestGetCompletionItems(t *testing.T) {

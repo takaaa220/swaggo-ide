@@ -1,6 +1,6 @@
 package protocol
 
-import "github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
+import "github.com/takaaa220/swaggo-ide/server/internal/server/transport"
 
 type CompletionFunc func(transport.Context, *CompletionParams) (CompletionResult, error)
 

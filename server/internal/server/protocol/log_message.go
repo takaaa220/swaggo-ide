@@ -1,6 +1,6 @@
 package protocol
 
-import "github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
+import "github.com/takaaa220/swaggo-ide/server/internal/server/transport"
 
 type logMessageParams struct {
 	Type    LogLevel `json:"type"`

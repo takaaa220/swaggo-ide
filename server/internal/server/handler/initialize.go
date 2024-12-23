@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/transport"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/transport"
 	"golang.org/x/exp/jsonrpc2"
 )
 

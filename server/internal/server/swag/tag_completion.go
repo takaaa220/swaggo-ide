@@ -3,7 +3,7 @@ package swag
 import (
 	"sort"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/protocol"
 	"github.com/takaaa220/swaggo-ide/server/internal/server/swag/tag"
 )
 

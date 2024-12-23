@@ -3,7 +3,7 @@ package swag
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/server-sdk/protocol"
+	"github.com/takaaa220/swaggo-ide/server/internal/server/protocol"
 	"github.com/takaaa220/swaggo-ide/server/internal/server/swag/parser"
 	"github.com/takaaa220/swaggo-ide/server/internal/server/swag/tag"
 	"github.com/takaaa220/swaggo-ide/server/internal/server/util"
