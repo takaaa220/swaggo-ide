@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/filecache"
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
@@ -29,7 +28,7 @@ func (h *LSPHandler) doDidOpenTextDocument(ctx context.Context, p *protocol.DidO
 				Uri:         p.TextDocument.Uri,
 				Diagnostics: swag.CheckSyntax(string(p.TextDocument.Uri), p.TextDocument.Text),
 			}); err != nil {
-			log.Println(err)
+			h.logger.Println(err)
 		}
 	}(ctx)
 
