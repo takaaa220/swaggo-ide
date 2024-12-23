@@ -1,0 +1,5 @@
+**/*
+
+!dist/index.js
+!lsp-server
+!package.json
