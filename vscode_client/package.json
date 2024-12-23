@@ -7,7 +7,7 @@
   "engines": {
     "vscode": "^1.95.0"
   },
-  "main": "./out/extension.js",
+  "main": "./dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/takaaa220/swaggo-ide.git",
@@ -31,8 +31,8 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p .",
+    "vscode:prepublish": "npm run check && npm run compile",
+    "compile": "ncc build ./src/extension.ts -o dist",
     "check": "tsc -p . --noEmit",
     "publish": "vsce publish",
     "package": "vsce package"
@@ -40,6 +40,7 @@
   "author": "takaaa220",
   "license": "Apache-2.0",
   "dependencies": {
+    "@vercel/ncc": "^0.38.3",
     "@vscode/vsce": "^3.2.1",
     "vscode-languageclient": "^9.0.1"
   },
