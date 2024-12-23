@@ -11,14 +11,18 @@ import (
 	"github.com/takaaa220/swaggo-ide/server/internal"
 )
 
+var debug = false
+
 func main() {
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
+	if debug {
+		go func() {
+			log.Println(http.ListenAndServe("localhost:6060", nil))
+		}()
+	}
 
 	ctx := context.Background()
 
-	if err := internal.StartServer(ctx); err != nil {
+	if err := internal.StartServer(ctx, debug); err != nil {
 		log.Fatal(fmt.Errorf("failed to start server: %w", err))
 	}
 }

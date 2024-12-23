@@ -9,8 +9,13 @@ import (
 	"golang.org/x/exp/jsonrpc2"
 )
 
-func StartServer(ctx context.Context) error {
-	handler := handler.NewLSPHandler(handler.LSPHandlerOptions{})
+func StartServer(ctx context.Context, debug bool) error {
+	opts := handler.LSPHandlerOptions{}
+	if debug {
+		opts.LogLevel = handler.LogDebug
+	}
+
+	handler := handler.NewLSPHandler(opts)
 
 	binder := transport.NewBinder(handler)
 	listener := transport.NewStdListener()

@@ -28,7 +28,7 @@ func (h *LSPHandler) doDidOpenTextDocument(ctx context.Context, p *protocol.DidO
 				Uri:         p.TextDocument.Uri,
 				Diagnostics: swag.CheckSyntax(string(p.TextDocument.Uri), p.TextDocument.Text),
 			}); err != nil {
-			h.logger.Println(err)
+			h.logger.Error(err)
 		}
 	}(ctx)
 
