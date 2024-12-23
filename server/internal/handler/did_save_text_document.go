@@ -25,7 +25,7 @@ func (h *LSPHandler) doDidSaveTextDocument(ctx context.Context, p *protocol.DidS
 
 	log.Println("Saved")
 
-	go func() {
+	go func(ctx context.Context) {
 		if err := h.Notify(ctx, "textDocument/publishDiagnostics",
 			protocol.PublishDiagnosticsParams{
 				Uri:         p.TextDocument.Uri,
@@ -33,7 +33,7 @@ func (h *LSPHandler) doDidSaveTextDocument(ctx context.Context, p *protocol.DidS
 			}); err != nil {
 			log.Println(err)
 		}
-	}()
+	}(ctx)
 
 	return nil
 }

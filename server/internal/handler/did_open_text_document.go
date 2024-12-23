@@ -23,7 +23,7 @@ func (h *LSPHandler) HandleDidOpenTextDocument(ctx context.Context, req *jsonrpc
 func (h *LSPHandler) doDidOpenTextDocument(ctx context.Context, p *protocol.DidOpenTextDocumentParams) error {
 	h.fileCache.Set(p.TextDocument.Uri, filecache.NewFileInfo(p.TextDocument.Version, filecache.NewFileText(p.TextDocument.Text)))
 
-	go func() {
+	go func(ctx context.Context) {
 		if err := h.Notify(ctx, "textDocument/publishDiagnostics",
 			protocol.PublishDiagnosticsParams{
 				Uri:         p.TextDocument.Uri,
@@ -31,7 +31,7 @@ func (h *LSPHandler) doDidOpenTextDocument(ctx context.Context, p *protocol.DidO
 			}); err != nil {
 			log.Println(err)
 		}
-	}()
+	}(ctx)
 
 	return nil
 }

@@ -61,5 +61,10 @@ func (h *LSPHandler) SetConnection(conn *jsonrpc2.Connection) {
 }
 
 func (h *LSPHandler) Notify(ctx context.Context, method string, params any) error {
-	return h.conn.Notify(ctx, method, params)
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return h.conn.Notify(ctx, method, params)
+	}
 }
