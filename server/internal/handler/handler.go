@@ -23,15 +23,10 @@ func NewLSPHandler(opts LSPHandlerOptions) *LSPHandler {
 		checkSyntaxDebounce = opts.CheckSyntaxDebounce
 	}
 
-	logLevel := LogWarn
-	if opts.LogLevel != LogWarn {
-		logLevel = opts.LogLevel
-	}
-
 	h := &LSPHandler{
 		checkSyntaxDebounce: checkSyntaxDebounce,
 		checkSyntaxReq:      make(chan CheckSyntaxRequest),
-		logger:              NewLogger(logWriter, logLevel),
+		logger:              NewLogger(logWriter, opts.LogLevel),
 	}
 
 	go h.checkSyntax()

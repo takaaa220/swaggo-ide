@@ -10,7 +10,9 @@ import (
 )
 
 func StartServer(ctx context.Context, debug bool) error {
-	opts := handler.LSPHandlerOptions{}
+	opts := handler.LSPHandlerOptions{
+		LogLevel: handler.LogWarn,
+	}
 	if debug {
 		opts.LogLevel = handler.LogDebug
 	}
