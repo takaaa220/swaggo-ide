@@ -47,7 +47,7 @@ func (h *LSPHandler) doCodeLens(_ context.Context, p *protocol.CodeLensParams) (
 				Title:   "swag fmt (this file)",
 				Command: "swaggo-language-server-client.format",
 				Arguments: []any{
-					p.TextDocument.Uri,
+					p.TextDocument.Uri.Path(),
 				},
 			},
 		}

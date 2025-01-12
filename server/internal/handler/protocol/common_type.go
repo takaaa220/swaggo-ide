@@ -1,7 +1,13 @@
 package protocol
 
+import "strings"
+
 // file:///xxx/yyy/zzz
 type DocumentUri string
+
+func (d DocumentUri) Path() string {
+	return strings.TrimPrefix(string(d), "file://")
+}
 
 type TextDocumentIdentifier struct {
 	Uri DocumentUri `json:"uri"`
