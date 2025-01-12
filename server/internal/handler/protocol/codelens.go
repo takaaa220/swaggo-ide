@@ -6,7 +6,7 @@ type CodeLensClientCapabilities struct {
 }
 
 type CodeLensOptions struct {
-	WorkDoneProgress bool `json:"workDoneProgress,omitempty"`
+	WorkDoneProgressOptions
 	// Code lens has a resolve provider as well.
 	ResolveProvider bool `json:"resolveProvider,omitempty"`
 }

@@ -26,6 +26,7 @@ func (h *LSPHandler) doInitialize(_ context.Context, _ *protocol.InitializeParam
 			CompletionProvider: &protocol.CompletionOptions{
 				TriggerCharacters: []string{" ", "@"},
 			},
+			HoverProvider: true,
 			TextDocumentSync: protocol.TextDocumentSyncOptions{
 				OpenClose: true,
 				Change:    protocol.TextDocumentSyncKindFull,

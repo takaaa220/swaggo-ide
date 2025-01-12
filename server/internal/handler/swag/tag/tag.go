@@ -8,6 +8,7 @@ import (
 type swagTagDef struct {
 	Type              swagTagType
 	Args              []swagTagArgDef
+	Description       string
 	requiredArgsCount int
 }
 
@@ -46,26 +47,31 @@ var (
 	swagTagSummary = swagTagDef{
 		Type:              swagTagTypeSummary,
 		Args:              []swagTagArgDef{newSwagTagStringArgDef("SUMMARY")},
+		Description:       "A short summary of the operation.",
 		requiredArgsCount: 1,
 	}
 	swagTagDescription = swagTagDef{
 		Type:              swagTagTypeDescription,
 		Args:              []swagTagArgDef{newSwagTagStringArgDef("DESCRIPTION")},
+		Description:       "A verbose explanation of the operation.",
 		requiredArgsCount: 1,
 	}
 	swagTagTags = swagTagDef{
 		Type:              swagTagTypeTags,
 		Args:              []swagTagArgDef{newSwagTagStringArgDef("TAG1,TAG2")},
+		Description:       "A list of tags for API documentation control.",
 		requiredArgsCount: 1,
 	}
 	swagTagAccept = swagTagDef{
 		Type:              swagTagTypeAccept,
 		Args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
+		Description:       "A list of MIME types the operation can consume.",
 		requiredArgsCount: 1,
 	}
 	swagTagProduce = swagTagDef{
 		Type:              swagTagTypeProduce,
 		Args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
+		Description:       "A list of MIME types the operation can produce.",
 		requiredArgsCount: 1,
 	}
 	swagTagParam = swagTagDef{
@@ -78,6 +84,7 @@ var (
 			wrapArgDefWithBraces('"', newSwagTagStringArgDef("DESCRIPTION")),
 			newSwagTagStringArgDef("ATTRIBUTE"),
 		},
+		Description:       "Describes a single operation parameter.",
 		requiredArgsCount: 5,
 	}
 	swagTagSuccess = swagTagDef{
@@ -88,6 +95,7 @@ var (
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
+		Description:       "A success response.",
 		requiredArgsCount: 3,
 	}
 	swagTagFailure = swagTagDef{
@@ -98,6 +106,7 @@ var (
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
 			newSwagTagStringArgDef("DESCRIPTION"),
 		},
+		Description:       "A failure response.",
 		requiredArgsCount: 3,
 	}
 	swagTagRouter = swagTagDef{
@@ -106,6 +115,7 @@ var (
 			newSwagTagStringArgDef("PATH"),
 			wrapArgDefWithBraces('[', newSwagTagUnionArgDef("HTTP_METHOD", &swagTagArgHttpMethodUnionChecker)),
 		},
+		Description:       "A router definition. This is required for the operation.",
 		requiredArgsCount: 2,
 	}
 	swagTagID = swagTagDef{
@@ -113,6 +123,7 @@ var (
 		Args: []swagTagArgDef{
 			newSwagTagStringArgDef("ID"),
 		},
+		Description:       "A unique identifier for the operation.",
 		requiredArgsCount: 1,
 	}
 	swagTagHeader = swagTagDef{
@@ -123,6 +134,7 @@ var (
 			newSwagTagStringArgDef("HEADER_NAME"),
 			newSwagTagStringArgDef("COMMENT"),
 		},
+		Description:       "A header definition.",
 		requiredArgsCount: 4,
 	}
 	swagTagUnknown = swagTagDef{

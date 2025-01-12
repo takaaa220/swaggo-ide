@@ -29,3 +29,19 @@ type Location struct {
 }
 
 type ProgressToken any // string | int
+
+type WorkDoneProgressParams struct {
+	// An optional token that a server can use to report work done progress.
+	WorkDoneToken ProgressToken `json:"workDoneToken,omitempty"`
+}
+
+type WorkDoneProgressOptions struct {
+	WorkDoneProgress bool `json:"workDoneProgress,omitempty"`
+}
+
+type TextDocumentPositionParams struct {
+	// The text document.
+	TextDocument TextDocumentIdentifier `json:"textDocument"`
+	// The position inside the text document.
+	Position Position `json:"position"`
+}
