@@ -23,17 +23,17 @@ func TestCheckSyntax(t *testing.T) {
 				uri: "test1",
 				src: `package main
 
-// @Summary Show an account
-// @Description get string by ID
-// @Tags accounts
-// @Accept json
-// @Produce json
-// @Header 200 {string} Location "Location of the newly created resource"
-// @Param id path integer true "Account ID"
-// @Success 200 {object} model.Account
-// @Failure 400 {object} httputil.HTTPError
-// @Router /accounts/{id} [get]
-		`,
+		// @Summary Show an account
+		// @Description get string by ID
+		// @Tags accounts
+		// @Accept json
+		// @Produce json
+		// @Header 200 {string} Location "Location of the newly created resource"
+		// @Param id path integer true "Account ID"
+		// @Success 200 {object} model.Account
+		// @Failure 400 {object} httputil.HTTPError
+		// @Router /accounts/{id} [get]
+				`,
 			},
 			want: []protocol.Diagnostics{},
 		},
@@ -144,6 +144,28 @@ func TestCheckSyntax(t *testing.T) {
 					Severity: 1,
 					Source:   "swag",
 					Message:  "[HTTP_METHOD] should be `get, post, put, patch, delete, head, options, trace, or connect`.",
+				},
+			},
+		},
+		"return diagnostics_when_router_doesn't_exist": {
+			args: args{
+				uri: "test1",
+				src: `package main
+
+// @Summary hello world
+func hello() {
+}
+`,
+			},
+			want: []protocol.Diagnostics{
+				{
+					Range: protocol.Range{
+						Start: protocol.Position{Line: 2, Character: 0},
+						End:   protocol.Position{Line: 2, Character: 0},
+					},
+					Severity: 1,
+					Source:   "swag",
+					Message:  "@Router is required.",
 				},
 			},
 		},
