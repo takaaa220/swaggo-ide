@@ -3,6 +3,8 @@ package protocol
 // TextDocumentClientCapabilities defines capabilities related to text documents.
 type TextDocumentClientCapabilities struct {
 	Synchronization TextDocumentSyncClientCapabilities `json:"synchronization,omitempty"`
+	// Capabilities specific to the `textDocument/codeLens` request.
+	CodeLens CodeLensClientCapabilities `json:"codeLens,omitempty"`
 }
 
 // TextDocumentSyncClientCapabilities defines capabilities for text document synchronization.

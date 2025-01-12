@@ -33,6 +33,9 @@ func (h *LSPHandler) doInitialize(_ context.Context, _ *protocol.InitializeParam
 					IncludeText: true,
 				},
 			},
+			CodeLensProvider: &protocol.CodeLensOptions{
+				ResolveProvider: true,
+			},
 		},
 	}, nil
 }

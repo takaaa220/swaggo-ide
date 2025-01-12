@@ -82,6 +82,8 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 		return nil, jsonrpc2.ErrAsyncResponse
 	case "textDocument/completion":
 		return h.HandleCompletion(ctx, req)
+	case "textDocument/codeLens":
+		return h.HandleCodeLens(ctx, req)
 	default:
 		h.logger.Debugf("method %s not supported", req.Method)
 		return nil, jsonrpc2.ErrNotHandled
