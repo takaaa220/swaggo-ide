@@ -12,22 +12,43 @@ import (
 func CheckSyntax(uri string, src string) []protocol.Diagnostics {
 	splitSrc := strings.Split(src, "\n")
 
-	diagnostics := []protocol.Diagnostics{}
+	var checkers []*apiRouteInfoChecker
+	var checker *apiRouteInfoChecker
 	for i, line := range splitSrc {
 		if !util.IsCommentLine(line) {
+			if checker != nil {
+				checkers = append(checkers, checker)
+				checker = nil
+			}
 			continue
 		}
 
-		_, checkErrors := check(line)
+		if checker == nil {
+			checker = &apiRouteInfoChecker{
+				start: i,
+				lines: []string{line},
+			}
+			continue
+		}
+
+		checker.lines = append(checker.lines, line)
+	}
+	if checker != nil {
+		checkers = append(checkers, checker)
+	}
+
+	diagnostics := []protocol.Diagnostics{}
+	for _, checker := range checkers {
+		checkErrors := checker.check()
 		for _, checkError := range checkErrors {
 			diagnostics = append(diagnostics, protocol.Diagnostics{
 				Range: protocol.Range{
 					Start: protocol.Position{
-						Line:      uint32(i),
+						Line:      uint32(checkError.line + checker.start),
 						Character: uint32(checkError.start),
 					},
 					End: protocol.Position{
-						Line:      uint32(i),
+						Line:      uint32(checkError.line + checker.start),
 						Character: uint32(checkError.end),
 					},
 				},
@@ -41,54 +62,65 @@ func CheckSyntax(uri string, src string) []protocol.Diagnostics {
 	return diagnostics
 }
 
+type apiRouteInfoChecker struct {
+	start int
+	lines []string
+}
+
 type checkError struct {
 	message string
+	line    int
 	start   int
 	end     int
 }
 
-func check(line string) (bool, []checkError) {
-	firstToken, tokenizeArgs := parser.Tokenize(line)
-	if !strings.HasPrefix(firstToken.Text, "@") {
-		return false, []checkError{}
-	}
-	if tokenizeArgs == nil {
-		return false, []checkError{}
-	}
-	swagTagDef := tag.NewSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
-	if !swagTagDef.IsValidTag() {
-		return false, []checkError{}
-	}
-
+func (c *apiRouteInfoChecker) check() []checkError {
 	checkErrors := []checkError{}
-	i := 0
-	for argToken := range tokenizeArgs(len(swagTagDef.Args)) {
-		def := swagTagDef.Args[i]
 
-		arg, err := tag.NewSwagTagArg(def, argToken.Text)
-		if err != nil {
-			panic(err)
+	for lineIndex, line := range c.lines {
+		firstToken, tokenizeArgs := parser.Tokenize(line)
+		if !strings.HasPrefix(firstToken.Text, "@") {
+			continue
+		}
+		if tokenizeArgs == nil {
+			continue
+		}
+		swagTagDef := tag.NewSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
+		if !swagTagDef.IsValidTag() {
+			continue
 		}
 
-		ok, errorMessages := def.Check(arg)
-		if !ok {
+		i := 0
+		for argToken := range tokenizeArgs(len(swagTagDef.Args)) {
+			def := swagTagDef.Args[i]
+
+			arg, err := tag.NewSwagTagArg(def, argToken.Text)
+			if err != nil {
+				panic(err)
+			}
+
+			ok, errorMessages := def.Check(arg)
+			if !ok {
+				checkErrors = append(checkErrors, checkError{
+					message: strings.Join(errorMessages, ", "),
+					line:    lineIndex,
+					start:   argToken.Start,
+					end:     argToken.End,
+				})
+			}
+
+			i++
+		}
+
+		if i < swagTagDef.RequiredArgsCount() {
 			checkErrors = append(checkErrors, checkError{
-				message: strings.Join(errorMessages, ", "),
-				start:   argToken.Start,
-				end:     argToken.End,
+				message: swagTagDef.ErrorMessage(),
+				line:    lineIndex,
+				start:   firstToken.Start,
+				end:     firstToken.End,
 			})
 		}
-
-		i++
 	}
 
-	if i < swagTagDef.RequiredArgsCount() {
-		checkErrors = []checkError{{
-			message: swagTagDef.ErrorMessage(),
-			start:   firstToken.Start,
-			end:     firstToken.End,
-		}}
-	}
-
-	return len(checkErrors) == 0, checkErrors
+	return checkErrors
 }

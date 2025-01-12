@@ -23,17 +23,17 @@ func TestCheckSyntax(t *testing.T) {
 				uri: "test1",
 				src: `package main
 
-// @Summary Show an account
-// @Description get string by ID
-// @Tags accounts
-// @Accept json
-// @Produce json
-// @Header 200 {string} Location "Location of the newly created resource"
-// @Param id path integer true "Account ID"
-// @Success 200 {object} model.Account
-// @Failure 400 {object} httputil.HTTPError
-// @Router /accounts/{id} [get]
-		`,
+		// @Summary Show an account
+		// @Description get string by ID
+		// @Tags accounts
+		// @Accept json
+		// @Produce json
+		// @Header 200 {string} Location "Location of the newly created resource"
+		// @Param id path integer true "Account ID"
+		// @Success 200 {object} model.Account
+		// @Failure 400 {object} httputil.HTTPError
+		// @Router /accounts/{id} [get]
+				`,
 			},
 			want: []protocol.Diagnostics{},
 		},
