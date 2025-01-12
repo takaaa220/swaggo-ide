@@ -63,8 +63,14 @@ func CheckSyntax(uri string, src string) []protocol.Diagnostics {
 }
 
 type apiRouteInfoChecker struct {
-	start int
-	lines []string
+	start     int
+	lines     []string
+	hasRouter bool
+}
+
+type routeInfo struct {
+	httpMethod string
+	path       string
 }
 
 type checkError struct {
@@ -88,6 +94,10 @@ func (c *apiRouteInfoChecker) check() []checkError {
 		swagTagDef := tag.NewSwagTagDef(strings.TrimPrefix(firstToken.Text, "@"))
 		if !swagTagDef.IsValidTag() {
 			continue
+		}
+
+		if swagTagDef.Type.IsRouter() {
+			c.hasRouter = true
 		}
 
 		i := 0
@@ -120,6 +130,15 @@ func (c *apiRouteInfoChecker) check() []checkError {
 				end:     firstToken.End,
 			})
 		}
+	}
+
+	if !c.hasRouter {
+		checkErrors = append(checkErrors, checkError{
+			message: "@Router is required.",
+			line:    0,
+			start:   0,
+			end:     0,
+		})
 	}
 
 	return checkErrors

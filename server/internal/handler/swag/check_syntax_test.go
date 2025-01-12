@@ -147,6 +147,28 @@ func TestCheckSyntax(t *testing.T) {
 				},
 			},
 		},
+		"return diagnostics_when_router_doesn't_exist": {
+			args: args{
+				uri: "test1",
+				src: `package main
+
+// @Summary hello world
+func hello() {
+}
+`,
+			},
+			want: []protocol.Diagnostics{
+				{
+					Range: protocol.Range{
+						Start: protocol.Position{Line: 2, Character: 0},
+						End:   protocol.Position{Line: 2, Character: 0},
+					},
+					Severity: 1,
+					Source:   "swag",
+					Message:  "@Router is required.",
+				},
+			},
+		},
 	}
 	for name, tt := range tests {
 		tt := tt

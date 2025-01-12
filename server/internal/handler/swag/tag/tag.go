@@ -163,3 +163,7 @@ const (
 	swagTagTypeHeader      swagTagType = "Header"
 	swagTagTypeUnknown     swagTagType = "-"
 )
+
+func (s swagTagType) IsRouter() bool {
+	return s == swagTagTypeRouter
+}
