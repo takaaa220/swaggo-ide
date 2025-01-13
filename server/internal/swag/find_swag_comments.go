@@ -3,9 +3,8 @@ package swag
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/parser"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/tag"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/util"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/parser"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
 )
 
 type SwagCommentsRange struct {
@@ -24,7 +23,7 @@ func FindSwagComments(src string) []SwagCommentsRange {
 		isSwagComment           bool
 	)
 	for i, line := range splitSrc {
-		if !util.IsCommentLine(line) {
+		if !isCommentLine(line) {
 			if commentsStartIndex != nil {
 				if isSwagComment {
 					swagCommentsLineIndexes = append(swagCommentsLineIndexes, SwagCommentsRange{

@@ -8,7 +8,7 @@ import (
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/filecache"
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag"
 	"golang.org/x/exp/jsonrpc2"
 )
 
@@ -161,10 +161,31 @@ func (h *LSPHandler) checkSyntax() {
 			runningCheckSyntax[req.uri] = cancel
 
 			go func(ctx context.Context, uri protocol.DocumentUri, text string) {
+				syntaxErrors := swag.CheckSyntax(string(uri), text)
+
+				diagnostics := make([]protocol.Diagnostics, len(syntaxErrors))
+				for i, syntaxError := range syntaxErrors {
+					diagnostics[i] = protocol.Diagnostics{
+						Range: protocol.Range{
+							Start: protocol.Position{
+								Line:      syntaxError.Range.Start.Line,
+								Character: syntaxError.Range.Start.Character,
+							},
+							End: protocol.Position{
+								Line:      syntaxError.Range.End.Line,
+								Character: syntaxError.Range.End.Character,
+							},
+						},
+						Severity: protocol.DiagnosticsSeverityError,
+						Source:   "swag",
+						Message:  syntaxError.Message,
+					}
+				}
+
 				if err := h.Notify(ctx, "textDocument/publishDiagnostics",
 					protocol.PublishDiagnosticsParams{
 						Uri:         uri,
-						Diagnostics: swag.CheckSyntax(string(uri), text),
+						Diagnostics: diagnostics,
 					}); err != nil {
 					h.logger.Error(err)
 				}

@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/util"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag"
 	"golang.org/x/exp/jsonrpc2"
 )
 
@@ -23,7 +22,7 @@ func (h *LSPHandler) HandleCompletion(ctx context.Context, req *jsonrpc2.Request
 
 	// this is hack because occur error when both of res and err are nil
 	if res == nil {
-		return []protocol.CompletionItem{}, nil
+		return Null{}, nil
 	}
 
 	return res, nil
@@ -39,16 +38,63 @@ func (h *LSPHandler) doCompletion(_ context.Context, p *protocol.CompletionParam
 	if !ok {
 		return nil, nil
 	}
-	if !util.IsCommentLine(line) {
-		return nil, nil
-	}
 
 	switch p.Context.TriggerCharacter {
 	case "@":
-		return swag.GetTagCompletionItems(line, p.Position)
+		candidates, err := swag.GetTagCompletionItems(line)
+		if err != nil {
+			return nil, err
+		}
+		return convertCandidates(
+			candidates,
+			protocol.Range{
+				Start: protocol.Position{Line: p.Position.Line, Character: p.Position.Character - 1},
+				End:   p.Position,
+			},
+		), nil
 	case " ":
-		return swag.GetTagArgCompletionItems(line, p.Position)
+		candidates, err := swag.GetTagArgCompletionItems(line, convertPosition(p.Position))
+		if err != nil {
+			return nil, err
+		}
+		return convertCandidates(
+			candidates,
+			protocol.Range{
+				Start: p.Position,
+				End:   p.Position,
+			},
+		), nil
 	default:
 		return nil, nil
+	}
+}
+
+func convertPosition(position protocol.Position) swag.Position {
+	return swag.Position{
+		Line:      position.Line,
+		Character: position.Character,
+	}
+}
+
+func convertCandidates(candidates []swag.CompletionCandidate, textEditRange protocol.Range) *protocol.CompletionList {
+	if len(candidates) == 0 {
+		return nil
+	}
+
+	completionItems := make([]protocol.CompletionItem, len(candidates))
+	for i, candidate := range candidates {
+		completionItems[i] = protocol.CompletionItem{
+			Label: candidate.Label,
+			Kind:  protocol.CompletionItemKindKeyword,
+			TextEdit: protocol.TextEdit{
+				Range:   textEditRange,
+				NewText: candidate.NewText,
+			},
+		}
+	}
+
+	return &protocol.CompletionList{
+		Items:        completionItems,
+		IsIncomplete: false,
 	}
 }
