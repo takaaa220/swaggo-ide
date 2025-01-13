@@ -61,25 +61,25 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 		if err != nil {
 			return nil, err
 		}
-		return nil, jsonrpc2.ErrAsyncResponse
+		return Null{}, nil
 	case "textDocument/didChange":
 		err := h.HandleDidChangeTextDocument(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-		return nil, jsonrpc2.ErrAsyncResponse
+		return Null{}, nil
 	case "textDocument/didClose":
 		err := h.HandleDidCloseTextDocument(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-		return nil, jsonrpc2.ErrAsyncResponse
+		return Null{}, nil
 	case "textDocument/didSave":
 		err := h.HandleDidSaveTextDocument(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-		return nil, jsonrpc2.ErrAsyncResponse
+		return Null{}, nil
 	case "textDocument/completion":
 		return h.HandleCompletion(ctx, req)
 	case "textDocument/codeLens":
@@ -90,6 +90,13 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 		h.logger.Debugf("method %s not supported", req.Method)
 		return nil, jsonrpc2.ErrNotHandled
 	}
+}
+
+// this is hack (error occurs when Handle returns (nil, nil))
+type Null struct{}
+
+func (n *Null) MarshalJSON() ([]byte, error) {
+	return []byte("null"), nil
 }
 
 func (h *LSPHandler) SetConnection(conn *jsonrpc2.Connection) {
