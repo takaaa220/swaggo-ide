@@ -6,8 +6,19 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/vscode_client"],
-      "preLaunchTask": "Build All",
+      "preLaunchTask": "TypeScript Compile",
       "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    },
+    {
+      "name": "Run Extension (Debug Server)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/vscode_client"],
+      "preLaunchTask": "Build All",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "env": {
+        "SWAGGO_LS_DEV_PATH": "${workspaceFolder}/vscode_client/swaggo-language-server"
+      }
     }
   ]
 }
