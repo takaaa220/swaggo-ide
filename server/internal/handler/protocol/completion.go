@@ -37,9 +37,9 @@ const (
 type CompletionResult any // []CompletionItem | CompletionList | null
 
 type CompletionList struct {
-	IsIncomplete bool                   `json:"isIncomplete"`
-	Items        []CompletionItem       `json:"items"`
-	ItemDefaults CompletionItemDefaults `json:"itemDefaults,omitempty"`
+	IsIncomplete bool                    `json:"isIncomplete"`
+	Items        []CompletionItem        `json:"items"`
+	ItemDefaults *CompletionItemDefaults `json:"itemDefaults,omitempty"`
 }
 
 type CompletionItemDefaults struct {
