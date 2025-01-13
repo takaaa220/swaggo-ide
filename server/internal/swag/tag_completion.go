@@ -4,10 +4,14 @@ import (
 	"sort"
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/tag"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
 )
 
 func GetTagCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {
+	if !isCommentLine(line) {
+		return nil, nil
+	}
+
 	completionItems := make([]protocol.CompletionItem, len(tag.SwagTags))
 	for i, tag := range tag.SwagTags {
 		completionItems[i] = protocol.CompletionItem{

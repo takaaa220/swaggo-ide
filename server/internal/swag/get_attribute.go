@@ -4,9 +4,8 @@ import (
 	"strings"
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/parser"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/tag"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/util"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/parser"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
 )
 
 type Attribute struct {
@@ -15,7 +14,7 @@ type Attribute struct {
 }
 
 func GetAttribute(line string, position protocol.Position) (*Attribute, error) {
-	if !util.IsCommentLine(line) {
+	if !isCommentLine(line) {
 		return nil, nil
 	}
 

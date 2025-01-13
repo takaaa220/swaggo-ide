@@ -1,9 +1,9 @@
-package util
+package swag
 
 import (
 	"strings"
 )
 
-func IsCommentLine(line string) bool {
+func isCommentLine(line string) bool {
 	return strings.HasPrefix(strings.TrimLeft(line, " \t"), "//")
 }

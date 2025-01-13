@@ -4,11 +4,15 @@ import (
 	"strings"
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/parser"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/tag"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/parser"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
 )
 
 func GetTagArgCompletionItems(line string, position protocol.Position) (*protocol.CompletionList, error) {
+	if !isCommentLine(line) {
+		return nil, nil
+	}
+
 	firstToken, tokenizeArgs := parser.Tokenize(line)
 	if !strings.HasPrefix(firstToken.Text, "@") || tokenizeArgs == nil {
 		return nil, nil

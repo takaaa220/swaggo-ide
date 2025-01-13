@@ -223,7 +223,7 @@ func TestGetCompletionItems(t *testing.T) {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			got, err := GetTagCompletionItems("", tt.args.position)
+			got, err := GetTagCompletionItems("// @P", tt.args.position)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetCompletionItems() error = %v, wantErr %v", err, tt.wantErr)
 				return

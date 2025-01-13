@@ -4,9 +4,8 @@ import (
 	"strings"
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/parser"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag/tag"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/util"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/parser"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
 )
 
 func CheckSyntax(uri string, src string) []protocol.Diagnostics {
@@ -15,7 +14,7 @@ func CheckSyntax(uri string, src string) []protocol.Diagnostics {
 	var checkers []*apiRouteInfoChecker
 	var checker *apiRouteInfoChecker
 	for i, line := range splitSrc {
-		if !util.IsCommentLine(line) {
+		if !isCommentLine(line) {
 			if checker != nil {
 				checkers = append(checkers, checker)
 				checker = nil

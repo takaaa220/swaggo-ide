@@ -6,7 +6,7 @@ import (
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/filecache"
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag"
 	"golang.org/x/exp/jsonrpc2"
 )
 

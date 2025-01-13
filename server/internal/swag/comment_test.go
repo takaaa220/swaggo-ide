@@ -1,4 +1,4 @@
-package util
+package swag
 
 import "testing"
 
@@ -30,7 +30,7 @@ func TestIsCommentLine(t *testing.T) {
 
 		t.Run(tt.args.line, func(t *testing.T) {
 			t.Parallel()
-			if got := IsCommentLine(tt.args.line); got != tt.want {
+			if got := isCommentLine(tt.args.line); got != tt.want {
 				t.Errorf("IsCommentLine() = %v, want %v", got, tt.want)
 			}
 		})

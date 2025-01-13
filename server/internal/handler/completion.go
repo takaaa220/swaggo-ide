@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/swag"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/util"
+	"github.com/takaaa220/swaggo-ide/server/internal/swag"
 	"golang.org/x/exp/jsonrpc2"
 )
 
@@ -37,9 +36,6 @@ func (h *LSPHandler) doCompletion(_ context.Context, p *protocol.CompletionParam
 
 	line, ok := fileInfo.Text.GetLine(int(p.Position.Line))
 	if !ok {
-		return nil, nil
-	}
-	if !util.IsCommentLine(line) {
 		return nil, nil
 	}
 
