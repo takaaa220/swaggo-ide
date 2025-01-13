@@ -22,7 +22,7 @@ type CodeLens struct {
 	// The range in which this code lens is valid. Should only span a single line.
 	Range Range `json:"range"`
 	// The command this code lens represents.
-	Command Command `json:"command,omitempty"`
+	Command *Command `json:"command,omitempty"`
 	// A data entry field that is preserved on a code lens item between
 	// a code lens and a code lens resolve request.
 	Data any `json:"data,omitempty"`
