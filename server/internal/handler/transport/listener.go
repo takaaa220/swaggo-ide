@@ -20,7 +20,12 @@ func NewStdListener() jsonrpc2.Listener {
 }
 
 func (l *stdListener) Accept(ctx context.Context) (io.ReadWriteCloser, error) {
-	return l.stdrwc, nil
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		return l.stdrwc, nil
+	}
 }
 
 func (l *stdListener) Close() error {

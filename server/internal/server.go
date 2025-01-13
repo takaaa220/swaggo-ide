@@ -29,9 +29,5 @@ func StartServer(ctx context.Context, debug bool) error {
 
 	log.Println("Server started")
 
-	if err := server.Wait(); err != nil {
-		return err
-	}
-
-	return nil
+	return server.Wait()
 }
