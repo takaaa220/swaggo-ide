@@ -8,8 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/handler"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/transport"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/transport"
 	"golang.org/x/exp/jsonrpc2"
 )
 

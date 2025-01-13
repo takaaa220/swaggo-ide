@@ -3,7 +3,7 @@ package swag
 import (
 	"sort"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/swag/tag"
 )
 
 func GetTagCompletionItems(line string) ([]CompletionCandidate, error) {

@@ -3,7 +3,7 @@ package filecache
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/protocol"
 )
 
 type FileCache struct {

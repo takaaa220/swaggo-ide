@@ -3,8 +3,8 @@ package swag
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/swag/parser"
-	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/swag/parser"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/swag/tag"
 )
 
 type SwagCommentsRange struct {
