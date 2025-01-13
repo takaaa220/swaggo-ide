@@ -35,7 +35,7 @@ func (h *LSPHandler) doHover(_ context.Context, p *protocol.HoverParams) (*proto
 		return nil, nil
 	}
 
-	attribute, err := swag.GetAttribute(line, p.Position)
+	attribute, err := swag.GetAttribute(line)
 	if err != nil {
 		return nil, err
 	}

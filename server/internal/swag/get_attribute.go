@@ -3,7 +3,6 @@ package swag
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
 	"github.com/takaaa220/swaggo-ide/server/internal/swag/parser"
 	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
 )
@@ -13,7 +12,7 @@ type Attribute struct {
 	Description string
 }
 
-func GetAttribute(line string, position protocol.Position) (*Attribute, error) {
+func GetAttribute(line string) (*Attribute, error) {
 	if !isCommentLine(line) {
 		return nil, nil
 	}

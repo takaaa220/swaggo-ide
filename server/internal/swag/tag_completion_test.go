@@ -4,217 +4,60 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
 )
 
 func TestGetCompletionItems(t *testing.T) {
 	t.Parallel()
 
-	type args struct {
-		position protocol.Position
-	}
 	tests := map[string]struct {
-		args    args
-		want    *protocol.CompletionList
+		want    []CompletionCandidate
 		wantErr bool
 	}{
 		"return completion items": {
-			args: args{
-				position: protocol.Position{
-					Line:      0,
-					Character: 1,
+			want: []CompletionCandidate{
+				{
+					Label:   "@Accept",
+					NewText: "@Accept MIME_TYPE",
 				},
-			},
-			want: &protocol.CompletionList{
-				IsIncomplete: false,
-				Items: []protocol.CompletionItem{
-					{
-						Label: "@Accept",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Accept MIME_TYPE",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Description",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Description DESCRIPTION",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Failure",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Failure STATUS_CODE {DATA_TYPE} GO_TYPE",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Header",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Header STATUS_CODE {DATA_TYPE} HEADER_NAME COMMENT",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@ID",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@ID ID",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Param",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Param PARAM_NAME PARAM_TYPE GO_TYPE REQUIRED \"DESCRIPTION\"",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Produce",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Produce MIME_TYPE",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Router",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Router PATH [HTTP_METHOD]",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Success",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Success STATUS_CODE {DATA_TYPE} GO_TYPE",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Summary",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Summary SUMMARY",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
-					{
-						Label: "@Tags",
-						Kind:  protocol.CompletionItemKindKeyword,
-						TextEdit: &protocol.TextEdit{
-							NewText: "@Tags TAG1,TAG2",
-							Range: protocol.Range{
-								Start: protocol.Position{
-									Line:      0,
-									Character: 0,
-								},
-								End: protocol.Position{
-									Line:      0,
-									Character: 1,
-								},
-							},
-						},
-					},
+				{
+					Label:   "@Description",
+					NewText: "@Description DESCRIPTION",
+				},
+				{
+					Label:   "@Failure",
+					NewText: "@Failure STATUS_CODE {DATA_TYPE} GO_TYPE",
+				},
+				{
+					Label:   "@Header",
+					NewText: "@Header STATUS_CODE {DATA_TYPE} HEADER_NAME COMMENT",
+				},
+				{
+					Label:   "@ID",
+					NewText: "@ID ID",
+				},
+				{
+					Label:   "@Param",
+					NewText: "@Param PARAM_NAME PARAM_TYPE GO_TYPE REQUIRED \"DESCRIPTION\"",
+				},
+				{
+					Label:   "@Produce",
+					NewText: "@Produce MIME_TYPE",
+				},
+				{
+					Label:   "@Router",
+					NewText: "@Router PATH [HTTP_METHOD]",
+				},
+				{
+					Label:   "@Success",
+					NewText: "@Success STATUS_CODE {DATA_TYPE} GO_TYPE",
+				},
+				{
+					Label:   "@Summary",
+					NewText: "@Summary SUMMARY",
+				},
+				{
+					Label:   "@Tags",
+					NewText: "@Tags TAG1,TAG2",
 				},
 			},
 		},
@@ -223,7 +66,7 @@ func TestGetCompletionItems(t *testing.T) {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			got, err := GetTagCompletionItems("// @P", tt.args.position)
+			got, err := GetTagCompletionItems("// @P")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetCompletionItems() error = %v, wantErr %v", err, tt.wantErr)
 				return
