@@ -2,11 +2,11 @@ package protocol
 
 // CompletionOptions represents options for completion requests.
 type CompletionOptions struct {
-	TriggerCharacters   []string             `json:"triggerCharacters,omitempty"`
-	AllCommitCharacters []string             `json:"allCommitCharacters,omitempty"`
-	ResolveProvider     bool                 `json:"resolveProvider,omitempty"`
-	WorkDoneProgress    bool                 `json:"workDoneProgress,omitempty"`
-	CompletionItem      CompletionItemOption `json:"completionItem,omitempty"`
+	TriggerCharacters   []string              `json:"triggerCharacters,omitempty"`
+	AllCommitCharacters []string              `json:"allCommitCharacters,omitempty"`
+	ResolveProvider     bool                  `json:"resolveProvider,omitempty"`
+	WorkDoneProgress    bool                  `json:"workDoneProgress,omitempty"`
+	CompletionItem      *CompletionItemOption `json:"completionItem,omitempty"`
 }
 
 type CompletionItemOption struct {
