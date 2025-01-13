@@ -6,7 +6,6 @@ import (
 
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/filecache"
 	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/swag"
 	"golang.org/x/exp/jsonrpc2"
 )
 
@@ -22,15 +21,7 @@ func (h *LSPHandler) HandleDidOpenTextDocument(ctx context.Context, req *jsonrpc
 func (h *LSPHandler) doDidOpenTextDocument(ctx context.Context, p *protocol.DidOpenTextDocumentParams) error {
 	h.fileCache.Set(p.TextDocument.Uri, filecache.NewFileInfo(p.TextDocument.Version, filecache.NewFileText(p.TextDocument.Text)))
 
-	go func(ctx context.Context) {
-		if err := h.Notify(ctx, "textDocument/publishDiagnostics",
-			protocol.PublishDiagnosticsParams{
-				Uri:         p.TextDocument.Uri,
-				Diagnostics: swag.CheckSyntax(string(p.TextDocument.Uri), p.TextDocument.Text),
-			}); err != nil {
-			h.logger.Error(err)
-		}
-	}(ctx)
+	h.requestCheckSyntax(p.TextDocument.Uri, p.TextDocument.Text)
 
 	return nil
 }

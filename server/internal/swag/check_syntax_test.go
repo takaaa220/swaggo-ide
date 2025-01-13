@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
 )
 
 func TestCheckSyntax(t *testing.T) {
@@ -16,7 +15,7 @@ func TestCheckSyntax(t *testing.T) {
 	}
 	tests := map[string]struct {
 		args args
-		want []protocol.Diagnostics
+		want []SyntaxError
 	}{
 		"return empty": {
 			args: args{
@@ -35,7 +34,7 @@ func TestCheckSyntax(t *testing.T) {
 		// @Router /accounts/{id} [get]
 				`,
 			},
-			want: []protocol.Diagnostics{},
+			want: []SyntaxError{},
 		},
 		"return diagnostics": {
 			args: args{
@@ -54,96 +53,76 @@ func TestCheckSyntax(t *testing.T) {
 // @Router /accounts/{id} [unknown]
 		`,
 			},
-			want: []protocol.Diagnostics{
+			want: []SyntaxError{
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 2, Character: 3},
-						End:   protocol.Position{Line: 2, Character: 11},
+					Range: Range{
+						Start: Position{Line: 2, Character: 3},
+						End:   Position{Line: 2, Character: 11},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "Should be `@Summary SUMMARY`.",
+					Message: "Should be `@Summary SUMMARY`.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 3, Character: 3},
-						End:   protocol.Position{Line: 3, Character: 15},
+					Range: Range{
+						Start: Position{Line: 3, Character: 3},
+						End:   Position{Line: 3, Character: 15},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "Should be `@Description DESCRIPTION`.",
+					Message: "Should be `@Description DESCRIPTION`.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 4, Character: 3},
-						End:   protocol.Position{Line: 4, Character: 8},
+					Range: Range{
+						Start: Position{Line: 4, Character: 3},
+						End:   Position{Line: 4, Character: 8},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "Should be `@Tags TAG1,TAG2`.",
+					Message: "Should be `@Tags TAG1,TAG2`.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 5, Character: 11},
-						End:   protocol.Position{Line: 5, Character: 18},
+					Range: Range{
+						Start: Position{Line: 5, Character: 11},
+						End:   Position{Line: 5, Character: 18},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "MIME_TYPE should be valid mime type.",
+					Message: "MIME_TYPE should be valid mime type.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 6, Character: 3},
-						End:   protocol.Position{Line: 6, Character: 11},
+					Range: Range{
+						Start: Position{Line: 6, Character: 3},
+						End:   Position{Line: 6, Character: 11},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "Should be `@Produce MIME_TYPE`.",
+					Message: "Should be `@Produce MIME_TYPE`.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 7, Character: 15},
-						End:   protocol.Position{Line: 7, Character: 20},
+					Range: Range{
+						Start: Position{Line: 7, Character: 15},
+						End:   Position{Line: 7, Character: 20},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
+					Message: "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 8, Character: 26},
-						End:   protocol.Position{Line: 8, Character: 29},
+					Range: Range{
+						Start: Position{Line: 8, Character: 26},
+						End:   Position{Line: 8, Character: 29},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "REQUIRED should be `true or false`.",
+					Message: "REQUIRED should be `true or false`.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 9, Character: 16},
-						End:   protocol.Position{Line: 9, Character: 21},
+					Range: Range{
+						Start: Position{Line: 9, Character: 16},
+						End:   Position{Line: 9, Character: 21},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
+					Message: "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 10, Character: 12},
-						End:   protocol.Position{Line: 10, Character: 15},
+					Range: Range{
+						Start: Position{Line: 10, Character: 12},
+						End:   Position{Line: 10, Character: 15},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "STATUS_CODE should be integer.",
+					Message: "STATUS_CODE should be integer.",
 				},
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 11, Character: 26},
-						End:   protocol.Position{Line: 11, Character: 35},
+					Range: Range{
+						Start: Position{Line: 11, Character: 26},
+						End:   Position{Line: 11, Character: 35},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "[HTTP_METHOD] should be `get, post, put, patch, delete, head, options, trace, or connect`.",
+					Message: "[HTTP_METHOD] should be `get, post, put, patch, delete, head, options, trace, or connect`.",
 				},
 			},
 		},
@@ -157,15 +136,13 @@ func hello() {
 }
 `,
 			},
-			want: []protocol.Diagnostics{
+			want: []SyntaxError{
 				{
-					Range: protocol.Range{
-						Start: protocol.Position{Line: 2, Character: 0},
-						End:   protocol.Position{Line: 2, Character: 0},
+					Range: Range{
+						Start: Position{Line: 2, Character: 0},
+						End:   Position{Line: 2, Character: 0},
 					},
-					Severity: 1,
-					Source:   "swag",
-					Message:  "@Router is required.",
+					Message: "@Router is required.",
 				},
 			},
 		},

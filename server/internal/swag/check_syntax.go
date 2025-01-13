@@ -3,12 +3,16 @@ package swag
 import (
 	"strings"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
 	"github.com/takaaa220/swaggo-ide/server/internal/swag/parser"
 	"github.com/takaaa220/swaggo-ide/server/internal/swag/tag"
 )
 
-func CheckSyntax(uri string, src string) []protocol.Diagnostics {
+type SyntaxError struct {
+	Range   Range
+	Message string
+}
+
+func CheckSyntax(uri string, src string) []SyntaxError {
 	splitSrc := strings.Split(src, "\n")
 
 	var checkers []*apiRouteInfoChecker
@@ -36,29 +40,27 @@ func CheckSyntax(uri string, src string) []protocol.Diagnostics {
 		checkers = append(checkers, checker)
 	}
 
-	diagnostics := []protocol.Diagnostics{}
+	syntaxErrors := []SyntaxError{}
 	for _, checker := range checkers {
 		checkErrors := checker.check()
 		for _, checkError := range checkErrors {
-			diagnostics = append(diagnostics, protocol.Diagnostics{
-				Range: protocol.Range{
-					Start: protocol.Position{
+			syntaxErrors = append(syntaxErrors, SyntaxError{
+				Range: Range{
+					Start: Position{
 						Line:      uint32(checkError.line + checker.start),
 						Character: uint32(checkError.start),
 					},
-					End: protocol.Position{
+					End: Position{
 						Line:      uint32(checkError.line + checker.start),
 						Character: uint32(checkError.end),
 					},
 				},
-				Severity: protocol.DiagnosticsSeverityError,
-				Source:   "swag",
-				Message:  checkError.message,
+				Message: checkError.message,
 			})
 		}
 	}
 
-	return diagnostics
+	return syntaxErrors
 }
 
 type apiRouteInfoChecker struct {
