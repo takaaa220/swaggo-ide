@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/takaaa220/swaggo-ide/server/internal"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal"
 )
 
 var debug = false

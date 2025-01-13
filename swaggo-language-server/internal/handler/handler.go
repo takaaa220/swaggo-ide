@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/filecache"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
-	"github.com/takaaa220/swaggo-ide/server/internal/swag"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/filecache"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/protocol"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/swag"
 	"golang.org/x/exp/jsonrpc2"
 )
 

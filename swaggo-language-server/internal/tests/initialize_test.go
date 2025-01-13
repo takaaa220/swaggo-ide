@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/takaaa220/swaggo-ide/server/internal/handler/protocol"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/protocol"
 )
 
 func TestInitialize(t *testing.T) {
