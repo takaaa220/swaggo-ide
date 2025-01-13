@@ -14,15 +14,22 @@ import {
 import { exec } from "child_process";
 import { dirname, join } from "path";
 import { readdir } from "fs/promises";
+import { homedir } from "os";
+import { existsSync } from "fs";
+import { promisify } from "util";
 
 let client: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
-  const serverModule = Uri.joinPath(context.extensionUri, "lsp-server").fsPath;
+  const binaryPath = await getLanguageServerBinaryPath();
+  if (!binaryPath) {
+    console.log("swaggo-language-server binary not found");
+    return;
+  }
 
   const serverOptions: ServerOptions = {
-    run: { command: serverModule, transport: TransportKind.stdio },
-    debug: { command: serverModule, transport: TransportKind.stdio },
+    run: { command: binaryPath, transport: TransportKind.stdio },
+    debug: { command: binaryPath, transport: TransportKind.stdio },
   };
 
   const clientOptions: LanguageClientOptions = {
@@ -87,5 +94,46 @@ async function format(filePath: string) {
     Window.showInformationMessage("File formatted successfully");
   } catch (e) {
     Window.showErrorMessage(`Failed to format the file: ${e}`);
+  }
+}
+
+async function getLanguageServerBinaryPath(): Promise<string | undefined> {
+  const devPath = process.env.SWAGGO_LS_DEV_PATH;
+
+  const getGoBinPath = () => {
+    const gopath = process.env.GOPATH ?? join(homedir(), "go");
+    return join(gopath, "bin");
+  };
+
+  const binaryPath = devPath ?? join(getGoBinPath(), "swaggo-language-server");
+  if (existsSync(binaryPath)) {
+    console.log("swaggo-language-server binary found", binaryPath);
+    return binaryPath;
+  }
+
+  const installed = await installBinary();
+  return installed ? binaryPath : undefined;
+}
+
+async function installBinary(): Promise<boolean> {
+  const res = await Window.showInformationMessage(
+    "Install swaggo-language-server binary?",
+    "Yes"
+  );
+  if (res !== "Yes") {
+    return false;
+  }
+
+  try {
+    await promisify(exec)(
+      "go install github.com/takaaa220/swaggo-ide/swaggo-language-server@latest"
+    );
+    Window.showInformationMessage(
+      "swaggo-language-server installed successfully"
+    );
+    return true;
+  } catch (e) {
+    Window.showErrorMessage(`Failed to install swaggo-language-server: ${e}`);
+    return false;
   }
 }

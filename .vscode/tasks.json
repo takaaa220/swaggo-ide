@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Go Build",
+      "type": "shell",
+      "command": "cd swaggo-language-server && go build -o ../vscode_client/swaggo-language-server main.go",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Build Go project"
+    },
+    {
+      "label": "TypeScript Compile",
+      "type": "shell",
+      "command": "cd vscode_client && pnpm run compile && cd -",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Compile TypeScript files"
+    },
+    {
+      "label": "Build All",
+      "dependsOn": ["Go Build", "TypeScript Compile"]
+    }
+  ]
+}
