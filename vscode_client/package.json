@@ -2,7 +2,7 @@
   "name": "swaggo-language-server-client",
   "displayName": "Swaggo Language Server Client",
   "description": "A VSCode extension for Swaggo",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "takaaa220",
   "engines": {
     "vscode": "^1.95.0"
