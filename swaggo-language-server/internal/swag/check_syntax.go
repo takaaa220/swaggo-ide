@@ -64,9 +64,23 @@ func CheckSyntax(uri string, src string) []SyntaxError {
 }
 
 type apiRouteInfoChecker struct {
-	start     int
-	lines     []string
-	hasRouter bool
+	start   int
+	lines   []string
+	tagDefs []tag.SwagTagDef
+}
+
+func (c apiRouteInfoChecker) hasSwagTags() bool {
+	return len(c.tagDefs) > 0
+}
+
+func (c apiRouteInfoChecker) hasRouterTag() bool {
+	for _, tagDef := range c.tagDefs {
+		if tagDef.Type.IsRouter() {
+			return true
+		}
+	}
+
+	return false
 }
 
 type routeInfo struct {
@@ -97,9 +111,7 @@ func (c *apiRouteInfoChecker) check() []checkError {
 			continue
 		}
 
-		if swagTagDef.Type.IsRouter() {
-			c.hasRouter = true
-		}
+		c.tagDefs = append(c.tagDefs, swagTagDef)
 
 		i := 0
 		for argToken := range tokenizeArgs(len(swagTagDef.Args)) {
@@ -133,7 +145,7 @@ func (c *apiRouteInfoChecker) check() []checkError {
 		}
 	}
 
-	if !c.hasRouter {
+	if c.hasSwagTags() && !c.hasRouterTag() {
 		checkErrors = append(checkErrors, checkError{
 			message: "@Router is required.",
 			line:    0,
