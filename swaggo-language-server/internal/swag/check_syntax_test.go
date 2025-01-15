@@ -146,6 +146,18 @@ func hello() {
 				},
 			},
 		},
+		"don't_return diagnostics_when_swaggo_comments_don't_exist": {
+			args: args{
+				uri: "test1",
+				src: `package main
+
+// hello world
+func hello() {
+}
+`,
+			},
+			want: []SyntaxError{},
+		},
 	}
 	for name, tt := range tests {
 		tt := tt

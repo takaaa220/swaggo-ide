@@ -5,14 +5,14 @@ import (
 	"strings"
 )
 
-type swagTagDef struct {
+type SwagTagDef struct {
 	Type              swagTagType
 	Args              []swagTagArgDef
 	Description       string
 	requiredArgsCount int
 }
 
-func NewSwagTagDef(tagTypeString string) swagTagDef {
+func NewSwagTagDef(tagTypeString string) SwagTagDef {
 	for _, tag := range SwagTags {
 		if strings.ToLower(tagTypeString) == strings.ToLower(string(tag.Type)) {
 			return tag
@@ -22,19 +22,19 @@ func NewSwagTagDef(tagTypeString string) swagTagDef {
 	return swagTagUnknown
 }
 
-func (s *swagTagDef) IsValidTag() bool {
+func (s *SwagTagDef) IsValidTag() bool {
 	return s.Type != swagTagTypeUnknown
 }
 
-func (s *swagTagDef) RequiredArgsCount() int {
+func (s *SwagTagDef) RequiredArgsCount() int {
 	return s.requiredArgsCount
 }
 
-func (s *swagTagDef) ErrorMessage() string {
+func (s *SwagTagDef) ErrorMessage() string {
 	return fmt.Sprintf("Should be `%s`.", s.String())
 }
 
-func (s *swagTagDef) String() string {
+func (s *SwagTagDef) String() string {
 	argsNameList := make([]string, s.requiredArgsCount)
 	for i := range s.requiredArgsCount {
 		argsNameList[i] = s.Args[i].label
@@ -44,37 +44,37 @@ func (s *swagTagDef) String() string {
 }
 
 var (
-	swagTagSummary = swagTagDef{
+	swagTagSummary = SwagTagDef{
 		Type:              swagTagTypeSummary,
 		Args:              []swagTagArgDef{newSwagTagStringArgDef("SUMMARY")},
 		Description:       "A short summary of the operation.",
 		requiredArgsCount: 1,
 	}
-	swagTagDescription = swagTagDef{
+	swagTagDescription = SwagTagDef{
 		Type:              swagTagTypeDescription,
 		Args:              []swagTagArgDef{newSwagTagStringArgDef("DESCRIPTION")},
 		Description:       "A verbose explanation of the operation.",
 		requiredArgsCount: 1,
 	}
-	swagTagTags = swagTagDef{
+	swagTagTags = SwagTagDef{
 		Type:              swagTagTypeTags,
 		Args:              []swagTagArgDef{newSwagTagStringArgDef("TAG1,TAG2")},
 		Description:       "A list of tags for API documentation control.",
 		requiredArgsCount: 1,
 	}
-	swagTagAccept = swagTagDef{
+	swagTagAccept = SwagTagDef{
 		Type:              swagTagTypeAccept,
 		Args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
 		Description:       "A list of MIME types the operation can consume.",
 		requiredArgsCount: 1,
 	}
-	swagTagProduce = swagTagDef{
+	swagTagProduce = SwagTagDef{
 		Type:              swagTagTypeProduce,
 		Args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
 		Description:       "A list of MIME types the operation can produce.",
 		requiredArgsCount: 1,
 	}
-	swagTagParam = swagTagDef{
+	swagTagParam = SwagTagDef{
 		Type: swagTagTypeParam,
 		Args: []swagTagArgDef{
 			newSwagTagStringArgDef("PARAM_NAME"),
@@ -87,7 +87,7 @@ var (
 		Description:       "Describes a single operation parameter.",
 		requiredArgsCount: 5,
 	}
-	swagTagSuccess = swagTagDef{
+	swagTagSuccess = SwagTagDef{
 		Type: swagTagTypeSuccess,
 		Args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
@@ -98,7 +98,7 @@ var (
 		Description:       "A success response.",
 		requiredArgsCount: 3,
 	}
-	swagTagFailure = swagTagDef{
+	swagTagFailure = SwagTagDef{
 		Type: swagTagTypeFailure,
 		Args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
@@ -109,7 +109,7 @@ var (
 		Description:       "A failure response.",
 		requiredArgsCount: 3,
 	}
-	swagTagRouter = swagTagDef{
+	swagTagRouter = SwagTagDef{
 		Type: swagTagTypeRouter,
 		Args: []swagTagArgDef{
 			newSwagTagStringArgDef("PATH"),
@@ -118,7 +118,7 @@ var (
 		Description:       "A router definition. This is required for the operation.",
 		requiredArgsCount: 2,
 	}
-	swagTagID = swagTagDef{
+	swagTagID = SwagTagDef{
 		Type: swagTagTypeID,
 		Args: []swagTagArgDef{
 			newSwagTagStringArgDef("ID"),
@@ -126,7 +126,7 @@ var (
 		Description:       "A unique identifier for the operation.",
 		requiredArgsCount: 1,
 	}
-	swagTagHeader = swagTagDef{
+	swagTagHeader = SwagTagDef{
 		Type: swagTagTypeHeader,
 		Args: []swagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
@@ -137,10 +137,10 @@ var (
 		Description:       "A header definition.",
 		requiredArgsCount: 4,
 	}
-	swagTagUnknown = swagTagDef{
+	swagTagUnknown = SwagTagDef{
 		Type: swagTagTypeUnknown,
 	}
-	SwagTags = []swagTagDef{
+	SwagTags = []SwagTagDef{
 		swagTagSummary,
 		swagTagDescription,
 		swagTagTags,
