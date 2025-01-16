@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"io"
-	"os"
 	"time"
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/filecache"
@@ -12,24 +11,15 @@ import (
 	"golang.org/x/exp/jsonrpc2"
 )
 
-func NewLSPHandler(opts LSPHandlerOptions) *LSPHandler {
-	var logWriter io.Writer = os.Stderr
-	if opts.LogWriter != nil {
-		logWriter = opts.LogWriter
-	}
-
-	checkSyntaxDebounce := 100 * time.Millisecond
-	if opts.CheckSyntaxDebounce > 0 {
-		checkSyntaxDebounce = opts.CheckSyntaxDebounce
-	}
-
+func NewLSPHandler(ctx context.Context, shutdownChan chan struct{}, opts LSPHandlerOptions) *LSPHandler {
 	h := &LSPHandler{
-		checkSyntaxDebounce: checkSyntaxDebounce,
+		checkSyntaxDebounce: opts.CheckSyntaxDebounce,
 		checkSyntaxReq:      make(chan CheckSyntaxRequest),
-		logger:              NewLogger(logWriter, opts.LogLevel),
+		logger:              NewLogger(opts.LogWriter, opts.LogLevel),
+		shutdownChan:        shutdownChan,
 	}
 
-	go h.checkSyntax()
+	go h.checkSyntax(ctx)
 	return h
 }
 
@@ -40,22 +30,31 @@ type LSPHandler struct {
 	checkSyntaxReq      chan CheckSyntaxRequest
 	checkSyntaxDebounce time.Duration
 	checkSyntaxTimer    *time.Timer
+	shutdownChan        chan struct{}
 }
 
 type LSPHandlerOptions struct {
 	CheckSyntaxDebounce time.Duration
-	LogLevel            logLevel
+	LogLevel            LogLevel
 	LogWriter           io.Writer
 }
 
 func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, error) {
+	ctx, cancel := h.withHandleTimeout(ctx, req, 5*time.Second)
+	defer cancel()
+
 	switch req.Method {
 	case "initialize":
 		return h.HandleInitialize(ctx, req)
 	case "initialized":
-		return nil, nil
+		return Null{}, nil
+	case "$/cancelRequest":
+		return Null{}, h.HandleCancelRequest(ctx, req)
 	case "shutdown":
-		return h.HandleShutdown(ctx, req)
+		return Null{}, h.HandleShutdown(ctx, req)
+	case "exit":
+		h.logger.Debugf("exit received, %v", req.ID)
+		return Null{}, nil
 	case "textDocument/didOpen":
 		err := h.HandleDidOpenTextDocument(ctx, req)
 		if err != nil {
@@ -86,42 +85,52 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 		return h.HandleCodeLens(ctx, req)
 	case "textDocument/hover":
 		return h.HandleHover(ctx, req)
+	case "workspace/didChangeWatchedFiles":
+		// TODO: implement
+		return Null{}, nil
+	case "$/setTrace":
+		// TODO: implement
+		return Null{}, nil
 	default:
 		h.logger.Debugf("method %s not supported", req.Method)
 		return nil, jsonrpc2.ErrNotHandled
 	}
 }
 
-// this is hack (error occurs when Handle returns (nil, nil))
-type Null struct{}
+func (h *LSPHandler) withHandleTimeout(ctx context.Context, req *jsonrpc2.Request, timeout time.Duration) (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 
-func (n *Null) MarshalJSON() ([]byte, error) {
-	return []byte("null"), nil
+	go func(id jsonrpc2.ID) {
+		<-ctx.Done()
+		if ctx.Err() == context.DeadlineExceeded {
+			h.logger.Debugf("context done: %v", ctx.Err())
+			h.conn.Cancel(id)
+		}
+	}(req.ID)
+
+	return ctx, cancel
 }
 
 func (h *LSPHandler) SetConnection(conn *jsonrpc2.Connection) {
-	// h.logger.Println("SetConnection called") // bug: this is called multiple times
-
 	h.conn = conn
 }
 
 func (h *LSPHandler) CloseConnection() error {
-	h.logger.Debugf("CloseConnection")
-
 	if h.conn == nil {
 		return nil
 	}
-
 	return h.conn.Close()
 }
 
 func (h *LSPHandler) Notify(ctx context.Context, method string, params any) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-		return h.conn.Notify(ctx, method, params)
+	if h.conn == nil {
+		return nil
 	}
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
+	return h.conn.Notify(ctx, method, params)
 }
 
 type CheckSyntaxRequest struct {
@@ -143,11 +152,23 @@ func (h *LSPHandler) requestCheckSyntax(uri protocol.DocumentUri, text string) {
 	})
 }
 
-func (h *LSPHandler) checkSyntax() {
+func (h *LSPHandler) checkSyntax(ctx context.Context) {
 	runningCheckSyntax := make(map[protocol.DocumentUri]context.CancelFunc)
 
 	for {
 		select {
+		case <-ctx.Done():
+			// FIXME: refactor (shouldn't stop timer here)
+			for uri, cancel := range runningCheckSyntax {
+				cancel()
+				delete(runningCheckSyntax, uri)
+			}
+			if h.checkSyntaxTimer != nil {
+				h.checkSyntaxTimer.Stop()
+			}
+			close(h.checkSyntaxReq)
+
+			return
 		case req, ok := <-h.checkSyntaxReq:
 			if !ok {
 				break
@@ -160,7 +181,9 @@ func (h *LSPHandler) checkSyntax() {
 			ctx, cancel := context.WithCancel(context.Background())
 			runningCheckSyntax[req.uri] = cancel
 
-			go func(ctx context.Context, uri protocol.DocumentUri, text string) {
+			go func(uri protocol.DocumentUri, text string) {
+				defer cancel()
+
 				syntaxErrors := swag.CheckSyntax(string(uri), text)
 
 				diagnostics := make([]protocol.Diagnostics, len(syntaxErrors))
@@ -189,17 +212,14 @@ func (h *LSPHandler) checkSyntax() {
 					}); err != nil {
 					h.logger.Error(err)
 				}
-			}(ctx, req.uri, req.text)
+			}(req.uri, req.text)
 		}
 	}
 }
 
-func (h *LSPHandler) logMessage(level protocol.LogLevel, message string) {
-	h.conn.Notify(
-		context.Background(),
-		"window/logMessage",
-		&protocol.LogMessageParams{
-			Type:    level,
-			Message: message,
-		})
+// this is hack (error occurs when Handle returns (nil, nil))
+type Null struct{}
+
+func (n *Null) MarshalJSON() ([]byte, error) {
+	return []byte("null"), nil
 }

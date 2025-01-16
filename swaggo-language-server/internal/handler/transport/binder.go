@@ -26,7 +26,7 @@ func NewBinder(handler Handler) *binder {
 }
 
 func (b *binder) Bind(ctx context.Context, conn *jsonrpc2.Connection) (jsonrpc2.ConnectionOptions, error) {
-	// maybe, this is hack...
+	// FIXME: use ctx
 	b.handler.SetConnection(conn)
 
 	return jsonrpc2.ConnectionOptions{

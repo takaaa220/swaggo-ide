@@ -6,11 +6,15 @@ import (
 	"golang.org/x/exp/jsonrpc2"
 )
 
-func (h *LSPHandler) HandleShutdown(_ context.Context, _ *jsonrpc2.Request) (any, error) {
+func (h *LSPHandler) HandleShutdown(_ context.Context, req *jsonrpc2.Request) error {
 	if h.checkSyntaxTimer != nil {
 		h.checkSyntaxTimer.Stop()
 	}
 
-	close(h.checkSyntaxReq)
-	return nil, h.CloseConnection()
+	h.logger.Debugf("Shutdown request received")
+	h.shutdownChan <- struct{}{}
+	h.CloseConnection()
+	h.logger.Debugf("Shutdown completed")
+
+	return nil
 }

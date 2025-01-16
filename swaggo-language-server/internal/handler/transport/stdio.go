@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"fmt"
 	"io"
 	"os"
 )
@@ -18,9 +19,14 @@ func (stdrwc) Write(p []byte) (int, error) {
 }
 
 func (stdrwc) Close() error {
-	if err := os.Stdin.Close(); err == nil {
-		return os.Stdout.Close()
-	} else {
-		return err
+	stdinErr := os.Stdin.Close()
+	stdoutErr := os.Stdout.Close()
+
+	if stdinErr != nil && stdoutErr != nil {
+		return fmt.Errorf("stdin error: %v, stdout error: %v", stdinErr, stdoutErr)
 	}
+	if stdinErr != nil {
+		return stdinErr
+	}
+	return stdoutErr
 }

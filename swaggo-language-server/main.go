@@ -1,12 +1,10 @@
 package main
 
 import (
-	_ "net/http/pprof"
-
 	"context"
-	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal"
 )
@@ -20,9 +18,9 @@ func main() {
 		}()
 	}
 
-	ctx := context.Background()
-
-	if err := internal.StartServer(ctx, debug); err != nil {
-		log.Fatal(fmt.Errorf("failed to start server: %w", err))
+	if err := internal.RunServer(debug); err != nil {
+		if err != context.Canceled {
+			log.Printf("failed to start server: %v", err)
+		}
 	}
 }
