@@ -7,7 +7,26 @@ import (
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/swag/tag"
 )
 
-func GetTagArgCompletionItems(line string, position Position) ([]CompletionCandidate, error) {
+type GetTagArgResult struct {
+	Tag            *tag.SwagTagDef
+	ActiveArgIndex int
+}
+
+func (r *GetTagArgResult) Candidates() []CompletionCandidate {
+	candidates := r.Tag.Args[r.ActiveArgIndex].Candidates()
+
+	res := make([]CompletionCandidate, len(candidates))
+	for i, c := range candidates {
+		res[i] = CompletionCandidate{
+			NewText: c,
+			Label:   c,
+		}
+	}
+
+	return res
+}
+
+func GetTagArg(line string, position Position) (*GetTagArgResult, error) {
 	if !isCommentLine(line) {
 		return nil, nil
 	}
@@ -27,14 +46,16 @@ func GetTagArgCompletionItems(line string, position Position) ([]CompletionCandi
 
 	lastTokenEnd := firstToken.End
 
-	candidates := []string{}
 	i := -1
 	positionIsLast := true
 	for argToken := range tokenizeArgs(len(swagTagDef.Args)) {
 		i++
 		if int(position.Character) < argToken.End {
 			if lastTokenEnd <= int(position.Character) && int(position.Character) < argToken.Start {
-				candidates = append(candidates, swagTagDef.Args[i].Candidates()...)
+				return &GetTagArgResult{
+					Tag:            &swagTagDef,
+					ActiveArgIndex: i,
+				}, nil
 			}
 
 			positionIsLast = false
@@ -43,18 +64,12 @@ func GetTagArgCompletionItems(line string, position Position) ([]CompletionCandi
 
 		lastTokenEnd = argToken.End
 	}
-
 	if positionIsLast && i < len(swagTagDef.Args)-1 {
-		candidates = append(candidates, swagTagDef.Args[i+1].Candidates()...)
+		return &GetTagArgResult{
+			Tag:            &swagTagDef,
+			ActiveArgIndex: i + 1,
+		}, nil
 	}
 
-	completionCandidates := make([]CompletionCandidate, len(candidates))
-	for i, candidate := range candidates {
-		completionCandidates[i] = CompletionCandidate{
-			Label:   candidate,
-			NewText: candidate,
-		}
-	}
-
-	return completionCandidates, nil
+	return nil, nil
 }

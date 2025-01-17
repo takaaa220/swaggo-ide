@@ -34,6 +34,10 @@ func TestInitialize(t *testing.T) {
 			"codeLensProvider": map[string]any{
 				"resolveProvider": true,
 			},
+			"signatureHelpProvider": map[string]any{
+				"triggerCharacters":   []any{" "},
+				"retriggerCharacters": []any{" "},
+			},
 		},
 	}, res); diff != "" {
 		t.Errorf("unexpected response (-want +got):\n%s", diff)

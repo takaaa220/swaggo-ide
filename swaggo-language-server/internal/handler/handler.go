@@ -79,6 +79,8 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 		return h.HandleCodeLens(ctx, req)
 	case "textDocument/hover":
 		return h.HandleHover(ctx, req)
+	case "textDocument/signatureHelp":
+		return h.HandleSignatureHelp(ctx, req)
 	case "workspace/didChangeWatchedFiles":
 		// TODO: implement
 		return Null{}, nil

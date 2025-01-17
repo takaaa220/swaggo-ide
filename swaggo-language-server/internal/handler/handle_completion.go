@@ -53,10 +53,15 @@ func (h *LSPHandler) doCompletion(_ context.Context, p *protocol.CompletionParam
 			},
 		), nil
 	case " ":
-		candidates, err := swag.GetTagArgCompletionItems(line, convertPosition(p.Position))
+		res, err := swag.GetTagArg(line, convertPosition(p.Position))
 		if err != nil {
 			return nil, err
 		}
+		var candidates []swag.CompletionCandidate
+		if res != nil {
+			candidates = res.Candidates()
+		}
+
 		return convertCandidates(
 			candidates,
 			protocol.Range{

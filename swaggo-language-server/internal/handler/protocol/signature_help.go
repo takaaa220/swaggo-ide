@@ -87,7 +87,7 @@ type SignatureHelpContext struct {
 	// Character that caused signature help to be triggered.
 	//
 	// This is undefined when triggerKind !== SignatureHelpTriggerKindTriggerCharacter
-	TriggerCharacter *string `json:"triggerCharacter,omitempty"`
+	TriggerCharacter string `json:"triggerCharacter,omitempty"`
 
 	// `true` if signature help was already showing when it was triggered.
 	//
@@ -167,7 +167,7 @@ type ParameterInformation struct {
 	// Note: a label of type string should be a substring of its containing
 	// signature label. Its intended use case is to highlight the parameter
 	// label part in the SignatureInformation.Label.
-	Label interface{} `json:"label"` // Can be string or [2]uint
+	Label string `json:"label"` // Can be string or [2]uint
 
 	// Documentation is the human-readable doc-comment of this parameter. Will be shown
 	// in the UI but can be omitted.
