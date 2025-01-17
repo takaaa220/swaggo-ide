@@ -3,33 +3,45 @@ package transport
 import (
 	"context"
 	"io"
+	"sync"
 
 	"golang.org/x/exp/jsonrpc2"
 )
 
 type stdListener struct {
-	stdrwc *stdrwc
+	stdrwc io.ReadWriteCloser
+	mu     sync.Mutex
 }
 
-var _ jsonrpc2.Listener = (*stdListener)(nil)
-
-func NewStdListener() jsonrpc2.Listener {
-	return &stdListener{
-		stdrwc: &stdrwc{},
-	}
+func NewStdListener() *stdListener {
+	return &stdListener{}
 }
 
 func (l *stdListener) Accept(ctx context.Context) (io.ReadWriteCloser, error) {
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	default:
-		return l.stdrwc, nil
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
+
+	l.stdrwc = &stdrwc{}
+	return l.stdrwc, nil
 }
 
 func (l *stdListener) Close() error {
-	return l.stdrwc.Close()
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if l.stdrwc == nil {
+		return nil
+	}
+	if err := l.stdrwc.Close(); err != nil {
+		return err
+	}
+
+	l.stdrwc = nil
+	return nil
 }
 
 func (l *stdListener) Dialer() jsonrpc2.Dialer {

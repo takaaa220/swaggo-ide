@@ -18,7 +18,7 @@ import { homedir } from "os";
 import { existsSync } from "fs";
 import { promisify } from "util";
 
-let client: LanguageClient;
+let client: LanguageClient | undefined;
 
 export async function activate(context: ExtensionContext) {
   const binaryPath = await getLanguageServerBinaryPath();
@@ -45,27 +45,28 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand("swaggo-language-server-client.format", format)
   );
 
+  client = new LanguageClient(
+    "swaggo",
+    "Go Swag",
+    serverOptions,
+    clientOptions
+  );
+
   try {
-    client = new LanguageClient(
-      "swaggo",
-      "Go Swag",
-      serverOptions,
-      clientOptions
-    );
+    await client.start();
   } catch (error) {
     void Window.showErrorMessage(`Failed to create language client: ${error}`);
   }
-
-  client
-    .start()
-    .catch((error) => client.error(`Failed to start the server: ${error}`));
 }
 
 export async function deactivate() {
   if (!client) {
+    console.log("No client to deactivate");
     return undefined;
   }
   await client.stop();
+  client = undefined;
+  console.log("Client deactivated");
 }
 
 async function format(filePath: string) {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"os"
 	"sync"
 	"testing"
 
@@ -44,7 +45,10 @@ func runServer() *testServer {
 		log.Fatal(err)
 	}
 
-	binder := transport.NewBinder(handler.NewLSPHandler(handler.LSPHandlerOptions{LogLevel: handler.LogDebug}))
+	shutdownChan := make(chan struct{})
+	defer close(shutdownChan)
+
+	binder := transport.NewBinder(handler.NewLSPHandler(ctx, shutdownChan, handler.LSPHandlerOptions{LogLevel: handler.LogDebug, LogWriter: os.Stderr}))
 
 	server := &testServer{
 		cancel:   cancel,

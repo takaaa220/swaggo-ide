@@ -6,20 +6,20 @@ import (
 )
 
 type logger struct {
-	level          logLevel
+	level          LogLevel
 	internalLogger *log.Logger
 }
 
-type logLevel int
+type LogLevel int
 
 const (
-	LogDebug logLevel = iota
+	LogDebug LogLevel = iota
 	LogInfo
 	LogWarn
 	LogError
 )
 
-func NewLogger(writer io.Writer, level logLevel) *logger {
+func NewLogger(writer io.Writer, level LogLevel) *logger {
 	return &logger{
 		level:          level,
 		internalLogger: log.New(writer, "", log.LstdFlags),
