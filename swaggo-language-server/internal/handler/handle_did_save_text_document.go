@@ -6,6 +6,7 @@ import (
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/filecache"
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/protocol"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/logger"
 	"golang.org/x/exp/jsonrpc2"
 )
 
@@ -21,7 +22,7 @@ func (h *LSPHandler) HandleDidSaveTextDocument(ctx context.Context, req *jsonrpc
 func (h *LSPHandler) doDidSaveTextDocument(_ context.Context, p *protocol.DidSaveTextDocumentParams) error {
 	h.fileCache.Set(p.TextDocument.Uri, filecache.NewFileInfo(0, filecache.NewFileText(p.Text)))
 
-	h.logger.Debugf("Saved: %s", p.TextDocument.Uri)
+	logger.Debugf("Saved: %s", p.TextDocument.Uri)
 
 	h.requestCheckSyntax(p.TextDocument.Uri, p.Text)
 
