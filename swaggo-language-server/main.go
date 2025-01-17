@@ -1,26 +1,41 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/logger"
 )
 
-var debug = false
-
 func main() {
-	if debug {
+	cfg := config()
+
+	if cfg.Debug {
 		go func() {
 			log.Println(http.ListenAndServe("localhost:6060", nil))
 		}()
 	}
 
-	if err := internal.RunServer(debug); err != nil {
-		if err != context.Canceled {
-			log.Printf("failed to start server: %v", err)
+	if err := internal.RunServer(cfg); err != nil {
+		logger.Errorf("failed to run server: %v", err)
+	}
+}
+
+func config() internal.Config {
+	// TODO: parse command line arguments
+	debug := false
+
+	if debug {
+		return internal.Config{
+			LogFile:  "swaggo-language-server.log",
+			LogLevel: logger.LogDebug,
 		}
+	}
+
+	return internal.Config{
+		LogFile:  "",
+		LogLevel: logger.LogInfo,
 	}
 }

@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,34 +9,55 @@ import (
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler"
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/transport"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/logger"
 	"golang.org/x/exp/jsonrpc2"
 )
 
-func RunServer(debug bool) error {
+func RunServer(config Config) error {
+	server := newServer(config)
+	if err := server.run(); err != nil && err != context.Canceled {
+		return err
+	}
+
+	return nil
+}
+
+type server struct {
+	config         Config
+	jsonrpc2Server *jsonrpc2.Server
+	cancel         context.CancelFunc
+}
+
+func newServer(config Config) *server {
+	return &server{config: config}
+}
+
+func (s *server) run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// TODO: refactor for options
-	opts := handler.LSPHandlerOptions{
-		CheckSyntaxDebounce: 100 * time.Millisecond,
-		LogLevel:            handler.LogWarn,
-		LogWriter:           os.Stderr,
-	}
-	if debug {
-		opts.LogLevel = handler.LogDebug
+	s.cancel = cancel
 
-		logWriter, err := os.OpenFile("swaggo-language-server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	var logWriter = os.Stderr
+	if s.config.LogFile != "" {
+		logFile, err := s.config.openLogFile()
 		if err != nil {
 			return err
 		}
-		defer logWriter.Close()
-		opts.LogWriter = logWriter
+		defer logFile.Close()
+		logWriter = logFile
+	}
+	logger.Setup(logWriter, s.config.LogLevel)
+
+	if err := s.start(ctx); err != nil {
+		return err
 	}
 
-	shutdownChan := make(chan struct{})
-	defer close(shutdownChan)
+	return s.wait(ctx)
+}
 
-	handler := handler.NewLSPHandler(ctx, shutdownChan, opts)
+func (s *server) start(ctx context.Context) error {
+	handler := handler.NewLSPHandler(ctx, s.cancel)
 	binder := transport.NewBinder(handler)
 	listener := transport.NewStdListener()
 
@@ -45,23 +65,31 @@ func RunServer(debug bool) error {
 	if err != nil {
 		return err
 	}
+	logger.Infof("Server started")
 
-	fmt.Fprintln(opts.LogWriter, "Server started")
+	s.jsonrpc2Server = server
+	return nil
+}
 
+func (s *server) wait(ctx context.Context) error {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(sigChan)
 
-	select {
-	case <-sigChan:
-	case <-shutdownChan:
-		cancel()
-	case <-ctx.Done():
-	}
+	go func() {
+		select {
+		case <-sigChan:
+			s.cancel()
+		case <-ctx.Done():
+		}
+	}()
+
+	<-ctx.Done()
 
 	// wait for graceful shutdown
-	fmt.Fprintln(opts.LogWriter, "Waiting for server to shut down...")
-	server.Wait()
-	fmt.Fprintln(opts.LogWriter, "Server stopped")
+	logger.Infof("Waiting for server to shut down...")
+	s.jsonrpc2Server.Wait()
+	logger.Infof("Server stopped")
+
 	return nil
 }

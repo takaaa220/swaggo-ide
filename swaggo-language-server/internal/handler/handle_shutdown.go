@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/logger"
 	"golang.org/x/exp/jsonrpc2"
 )
 
@@ -11,10 +12,10 @@ func (h *LSPHandler) HandleShutdown(_ context.Context, req *jsonrpc2.Request) er
 		h.checkSyntaxTimer.Stop()
 	}
 
-	h.logger.Debugf("Shutdown request received")
-	h.shutdownChan <- struct{}{}
+	logger.Debugf("Shutdown request received")
+	h.cancel()
 	h.CloseConnection()
-	h.logger.Debugf("Shutdown completed")
+	logger.Debugf("Shutdown completed")
 
 	return nil
 }

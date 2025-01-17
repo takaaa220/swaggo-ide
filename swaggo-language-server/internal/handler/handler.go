@@ -2,19 +2,18 @@ package handler
 
 import (
 	"context"
-	"io"
 	"time"
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/filecache"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/logger"
 	"golang.org/x/exp/jsonrpc2"
 )
 
-func NewLSPHandler(ctx context.Context, shutdownChan chan struct{}, opts LSPHandlerOptions) *LSPHandler {
+func NewLSPHandler(ctx context.Context, cancel context.CancelFunc) *LSPHandler {
 	h := &LSPHandler{
-		checkSyntaxDebounce: opts.CheckSyntaxDebounce,
+		checkSyntaxDebounce: 100 * time.Millisecond,
 		checkSyntaxReq:      make(chan checkSyntaxRequest),
-		logger:              NewLogger(opts.LogWriter, opts.LogLevel),
-		shutdownChan:        shutdownChan,
+		cancel:              cancel,
 	}
 
 	go h.checkSyntax(ctx)
@@ -22,19 +21,16 @@ func NewLSPHandler(ctx context.Context, shutdownChan chan struct{}, opts LSPHand
 }
 
 type LSPHandler struct {
-	logger              *logger
 	conn                *jsonrpc2.Connection
 	fileCache           *filecache.FileCache
 	checkSyntaxReq      chan checkSyntaxRequest
 	checkSyntaxDebounce time.Duration
 	checkSyntaxTimer    *time.Timer
-	shutdownChan        chan struct{}
+	cancel              context.CancelFunc
 }
 
 type LSPHandlerOptions struct {
 	CheckSyntaxDebounce time.Duration
-	LogLevel            LogLevel
-	LogWriter           io.Writer
 }
 
 func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, error) {
@@ -51,7 +47,7 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 	case "shutdown":
 		return Null{}, h.HandleShutdown(ctx, req)
 	case "exit":
-		h.logger.Debugf("exit received, %v", req.ID)
+		logger.Debugf("exit received, %v", req.ID)
 		return Null{}, nil
 	case "textDocument/didOpen":
 		err := h.HandleDidOpenTextDocument(ctx, req)
@@ -90,7 +86,7 @@ func (h *LSPHandler) Handle(ctx context.Context, req *jsonrpc2.Request) (any, er
 		// TODO: implement
 		return Null{}, nil
 	default:
-		h.logger.Debugf("method %s not supported", req.Method)
+		logger.Debugf("method %s not supported", req.Method)
 		return nil, jsonrpc2.ErrNotHandled
 	}
 }
@@ -101,7 +97,7 @@ func (h *LSPHandler) withHandleTimeout(ctx context.Context, req *jsonrpc2.Reques
 	go func(id jsonrpc2.ID) {
 		<-ctx.Done()
 		if ctx.Err() == context.DeadlineExceeded {
-			h.logger.Debugf("context done: %v", ctx.Err())
+			logger.Debugf("context done: %v", ctx.Err())
 			h.conn.Cancel(id)
 		}
 	}(req.ID)

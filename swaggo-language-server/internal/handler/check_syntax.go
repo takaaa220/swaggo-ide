@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/protocol"
+	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/logger"
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/swag"
 )
 
@@ -33,6 +34,7 @@ func (h *LSPHandler) checkSyntax(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
+			logger.Infof("checkSyntax stopped")
 			// FIXME: refactor (shouldn't stop timer here)
 			for uri, cancel := range runningCheckSyntax {
 				cancel()
@@ -85,7 +87,7 @@ func (h *LSPHandler) checkSyntax(ctx context.Context) {
 						Uri:         uri,
 						Diagnostics: diagnostics,
 					}); err != nil {
-					h.logger.Error(err)
+					logger.Error(err)
 				}
 			}(req.uri, req.text)
 		}
