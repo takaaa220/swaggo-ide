@@ -45,3 +45,19 @@ type TextDocumentPositionParams struct {
 	// The position inside the text document.
 	Position Position `json:"position"`
 }
+
+type MarkupKind string
+
+const (
+	// Plain text is supported as a content format
+	MarkupKindPlainText MarkupKind = "plaintext"
+	// Markdown is supported as a content format
+	MarkupKindMarkdown MarkupKind = "markdown"
+)
+
+type MarkupContent struct {
+	// The type of the Markup
+	Kind MarkupKind `json:"kind"`
+	// The content itself
+	Value string `json:"value"`
+}

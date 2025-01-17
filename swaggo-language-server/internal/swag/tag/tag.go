@@ -7,7 +7,7 @@ import (
 
 type SwagTagDef struct {
 	Type              swagTagType
-	Args              []swagTagArgDef
+	Args              []SwagTagArgDef
 	Description       string
 	requiredArgsCount int
 }
@@ -46,37 +46,37 @@ func (s *SwagTagDef) String() string {
 var (
 	swagTagSummary = SwagTagDef{
 		Type:              swagTagTypeSummary,
-		Args:              []swagTagArgDef{newSwagTagStringArgDef("SUMMARY")},
+		Args:              []SwagTagArgDef{newSwagTagStringArgDef("SUMMARY")},
 		Description:       "A short summary of the operation.",
 		requiredArgsCount: 1,
 	}
 	swagTagDescription = SwagTagDef{
 		Type:              swagTagTypeDescription,
-		Args:              []swagTagArgDef{newSwagTagStringArgDef("DESCRIPTION")},
+		Args:              []SwagTagArgDef{newSwagTagStringArgDef("DESCRIPTION")},
 		Description:       "A verbose explanation of the operation.",
 		requiredArgsCount: 1,
 	}
 	swagTagTags = SwagTagDef{
 		Type:              swagTagTypeTags,
-		Args:              []swagTagArgDef{newSwagTagStringArgDef("TAG1,TAG2")},
+		Args:              []SwagTagArgDef{newSwagTagStringArgDef("TAG1,TAG2")},
 		Description:       "A list of tags for API documentation control.",
 		requiredArgsCount: 1,
 	}
 	swagTagAccept = SwagTagDef{
 		Type:              swagTagTypeAccept,
-		Args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
+		Args:              []SwagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
 		Description:       "A list of MIME types the operation can consume.",
 		requiredArgsCount: 1,
 	}
 	swagTagProduce = SwagTagDef{
 		Type:              swagTagTypeProduce,
-		Args:              []swagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
+		Args:              []SwagTagArgDef{newSwagTagUnionArgDef("MIME_TYPE", swagTagArgMimeTypeUnionChecker)},
 		Description:       "A list of MIME types the operation can produce.",
 		requiredArgsCount: 1,
 	}
 	swagTagParam = SwagTagDef{
 		Type: swagTagTypeParam,
-		Args: []swagTagArgDef{
+		Args: []SwagTagArgDef{
 			newSwagTagStringArgDef("PARAM_NAME"),
 			newSwagTagUnionArgDef("PARAM_TYPE", swagTagArgParamTypeUnionChecker),
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
@@ -89,7 +89,7 @@ var (
 	}
 	swagTagSuccess = SwagTagDef{
 		Type: swagTagTypeSuccess,
-		Args: []swagTagArgDef{
+		Args: []SwagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
 			wrapArgDefWithBraces('{', newSwagTagUnionArgDef("DATA_TYPE", swagTagArgDataTypeUnionChecker)),
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
@@ -100,7 +100,7 @@ var (
 	}
 	swagTagFailure = SwagTagDef{
 		Type: swagTagTypeFailure,
-		Args: []swagTagArgDef{
+		Args: []SwagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
 			wrapArgDefWithBraces('{', newSwagTagUnionArgDef("DATA_TYPE", swagTagArgDataTypeUnionChecker)),
 			newSwagTagUnionArgDef("GO_TYPE", swagTagArgGoDataTypeUnionChecker),
@@ -111,7 +111,7 @@ var (
 	}
 	swagTagRouter = SwagTagDef{
 		Type: swagTagTypeRouter,
-		Args: []swagTagArgDef{
+		Args: []SwagTagArgDef{
 			newSwagTagStringArgDef("PATH"),
 			wrapArgDefWithBraces('[', newSwagTagUnionArgDef("HTTP_METHOD", &swagTagArgHttpMethodUnionChecker)),
 		},
@@ -120,7 +120,7 @@ var (
 	}
 	swagTagID = SwagTagDef{
 		Type: swagTagTypeID,
-		Args: []swagTagArgDef{
+		Args: []SwagTagArgDef{
 			newSwagTagStringArgDef("ID"),
 		},
 		Description:       "A unique identifier for the operation.",
@@ -128,7 +128,7 @@ var (
 	}
 	swagTagHeader = SwagTagDef{
 		Type: swagTagTypeHeader,
-		Args: []swagTagArgDef{
+		Args: []SwagTagArgDef{
 			newSwagTagIntArgDef("STATUS_CODE"),
 			wrapArgDefWithBraces('{', newSwagTagUnionArgDef("DATA_TYPE", swagTagArgDataTypeUnionChecker)),
 			newSwagTagStringArgDef("HEADER_NAME"),

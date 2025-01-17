@@ -37,6 +37,10 @@ func (h *LSPHandler) doInitialize(_ context.Context, _ *protocol.InitializeParam
 			CodeLensProvider: &protocol.CodeLensOptions{
 				ResolveProvider: true,
 			},
+			SignatureHelpProvider: &protocol.SignatureHelpOptions{
+				TriggerCharacters:   []string{" "},
+				RetriggerCharacters: []string{" "},
+			},
 		},
 	}, nil
 }
