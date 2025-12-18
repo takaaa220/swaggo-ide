@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/takaaa220/swaggo-ide/swaggo-language-server/internal/handler/filecache"
@@ -25,7 +26,9 @@ type LSPHandler struct {
 	fileCache           *filecache.FileCache
 	checkSyntaxReq      chan checkSyntaxRequest
 	checkSyntaxDebounce time.Duration
+	checkSyntaxMu       sync.Mutex
 	checkSyntaxTimer    *time.Timer
+	checkSyntaxClosed   bool
 	cancel              context.CancelFunc
 }
 
@@ -98,7 +101,9 @@ func (h *LSPHandler) withHandleTimeout(ctx context.Context, req *jsonrpc2.Reques
 		<-ctx.Done()
 		if ctx.Err() == context.DeadlineExceeded {
 			logger.Debugf("context done: %v", ctx.Err())
-			h.conn.Cancel(id)
+			if h.conn != nil {
+				h.conn.Cancel(id)
+			}
 		}
 	}(req.ID)
 

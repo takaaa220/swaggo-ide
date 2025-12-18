@@ -15,53 +15,86 @@ type checkSyntaxRequest struct {
 }
 
 func (h *LSPHandler) requestCheckSyntax(uri protocol.DocumentUri, text string) {
+	h.checkSyntaxMu.Lock()
+	defer h.checkSyntaxMu.Unlock()
+
+	if h.checkSyntaxClosed {
+		return
+	}
+
 	if h.checkSyntaxTimer != nil {
-		h.checkSyntaxTimer.Reset(h.checkSyntaxDebounce)
+		h.checkSyntaxTimer.Stop()
+		h.checkSyntaxTimer = nil
 	}
 
 	h.checkSyntaxTimer = time.AfterFunc(h.checkSyntaxDebounce, func() {
+		h.checkSyntaxMu.Lock()
 		h.checkSyntaxTimer = nil
-		h.checkSyntaxReq <- checkSyntaxRequest{
+		closed := h.checkSyntaxClosed
+		h.checkSyntaxMu.Unlock()
+
+		if closed {
+			return
+		}
+
+		select {
+		case h.checkSyntaxReq <- checkSyntaxRequest{
 			uri:  uri,
 			text: text,
+		}:
+		default:
+			// channel is full or closed, skip
 		}
 	})
 }
 
-func (h *LSPHandler) checkSyntax(ctx context.Context) {
+func (h *LSPHandler) checkSyntax(parentCtx context.Context) {
 	runningCheckSyntax := make(map[protocol.DocumentUri]context.CancelFunc)
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-parentCtx.Done():
 			logger.Infof("checkSyntax stopped")
-			// FIXME: refactor (shouldn't stop timer here)
+
+			// Cancel all running syntax checks
 			for uri, cancel := range runningCheckSyntax {
 				cancel()
 				delete(runningCheckSyntax, uri)
 			}
+
+			// Mark as closed and stop timer before closing channel
+			h.checkSyntaxMu.Lock()
+			h.checkSyntaxClosed = true
 			if h.checkSyntaxTimer != nil {
 				h.checkSyntaxTimer.Stop()
+				h.checkSyntaxTimer = nil
 			}
+			h.checkSyntaxMu.Unlock()
+
 			close(h.checkSyntaxReq)
 
 			return
 		case req, ok := <-h.checkSyntaxReq:
 			if !ok {
-				break
+				return
 			}
 
 			if cancel, ok := runningCheckSyntax[req.uri]; ok {
 				cancel()
 			}
 
-			ctx, cancel := context.WithCancel(context.Background())
+			ctx, cancel := context.WithCancel(parentCtx)
 			runningCheckSyntax[req.uri] = cancel
 
-			go func(uri protocol.DocumentUri, text string) {
+			go func(ctx context.Context, uri protocol.DocumentUri, text string) {
 				defer cancel()
 
 				syntaxErrors := swag.CheckSyntax(string(uri), text)
+
+				// Skip notification if context is cancelled
+				if ctx.Err() != nil {
+					return
+				}
 
 				diagnostics := make([]protocol.Diagnostics, len(syntaxErrors))
 				for i, syntaxError := range syntaxErrors {
@@ -87,9 +120,11 @@ func (h *LSPHandler) checkSyntax(ctx context.Context) {
 						Uri:         uri,
 						Diagnostics: diagnostics,
 					}); err != nil {
-					logger.Error(err)
+					if ctx.Err() == nil {
+						logger.Error(err)
+					}
 				}
-			}(req.uri, req.text)
+			}(ctx, req.uri, req.text)
 		}
 	}
 }

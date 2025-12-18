@@ -86,10 +86,21 @@ func (s *server) wait(ctx context.Context) error {
 
 	<-ctx.Done()
 
-	// wait for graceful shutdown
+	// wait for graceful shutdown with timeout
 	logger.Infof("Waiting for server to shut down...")
-	s.jsonrpc2Server.Wait()
-	logger.Infof("Server stopped")
+
+	done := make(chan struct{})
+	go func() {
+		s.jsonrpc2Server.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		logger.Infof("Server stopped")
+	case <-time.After(5 * time.Second):
+		logger.Infof("Server shutdown timed out, forcing exit")
+	}
 
 	return nil
 }
