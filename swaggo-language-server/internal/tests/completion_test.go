@@ -216,6 +216,7 @@ func main() {
 				expectedCompletionItem("boolean", "boolean"),
 				expectedCompletionItem("file", "file"),
 				expectedCompletionItem("object", "object"),
+				expectedCompletionItem("array", "array"),
 			},
 		}, res); diff != "" {
 			t.Errorf("unexpected response (-want +got):\n%s", diff)

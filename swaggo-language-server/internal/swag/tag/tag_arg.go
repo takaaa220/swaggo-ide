@@ -300,8 +300,9 @@ var (
 			&swagTagArgConstStringChecker{value: "boolean"},
 			&swagTagArgConstStringChecker{value: "file"},
 			&swagTagArgConstStringChecker{value: "object"},
+			&swagTagArgConstStringChecker{value: "array"},
 		},
-		errorMessage: "should be `string, number, integer, boolean, file or object`",
+		errorMessage: "should be `string, number, integer, boolean, file, object or array`",
 	}
 	swagTagArgGoDataTypeUnionChecker = &swagTagArgUnionChecker{
 		options: []swagTagArgChecker{
@@ -311,9 +312,10 @@ var (
 			&swagTagArgConstStringChecker{value: "boolean"},
 			&swagTagArgConstStringChecker{value: "file"},
 			&swagTagArgConstStringChecker{value: "object"},
+			&swagTagArgConstStringChecker{value: "array"},
 			userDefinedType,
 		},
-		errorMessage: "should be `string, number, integer, boolean, file, object or user-defined type`",
+		errorMessage: "should be `string, number, integer, boolean, file, object, array or user-defined type`",
 	}
 	swagTagArgBoolChecker = swagTagArgUnionChecker{
 		options: []swagTagArgChecker{
