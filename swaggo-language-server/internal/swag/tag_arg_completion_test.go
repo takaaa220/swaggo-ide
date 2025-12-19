@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestGetTagArgCompletionItems(t *testing.T) {
+func TestGetTagArg(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
@@ -15,9 +15,9 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 		position Position
 	}
 	tests := map[string]struct {
-		args    args
-		want    []CompletionCandidate
-		wantErr bool
+		args           args
+		wantCandidates []CompletionCandidate
+		wantErr        bool
 	}{
 		"return_candidates_when_position_is_last": {
 			args: args{
@@ -27,7 +27,7 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 					Character: 15,
 				},
 			},
-			want: []CompletionCandidate{
+			wantCandidates: []CompletionCandidate{
 				{
 					NewText: "path",
 					Label:   "path",
@@ -62,7 +62,7 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 					Character: 15,
 				},
 			},
-			want: []CompletionCandidate{
+			wantCandidates: []CompletionCandidate{
 				{
 					NewText: "path",
 					Label:   "path",
@@ -97,7 +97,7 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 					Character: 11,
 				},
 			},
-			want: []CompletionCandidate{
+			wantCandidates: []CompletionCandidate{
 				{
 					NewText: "json",
 					Label:   "json",
@@ -204,7 +204,7 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 					Character: 10,
 				},
 			},
-			want: []CompletionCandidate{},
+			wantCandidates: []CompletionCandidate{},
 		},
 		"don't_return_when_the_count_of_tag_args_is_exceeded": {
 			args: args{
@@ -214,7 +214,7 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 					Character: 18,
 				},
 			},
-			want: []CompletionCandidate{},
+			wantCandidates: []CompletionCandidate{},
 		},
 		"return_data_type_candidates_for_success_tag": {
 			args: args{
@@ -260,16 +260,24 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			got, err := GetTagArgCompletionItems(tt.args.line, tt.args.position)
+			result, err := GetTagArg(tt.args.line, tt.args.position)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetTagArgCompletionItems() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if diff := cmp.Diff(tt.want, got, cmpopts.SortSlices(func(i, j CompletionCandidate) bool {
+			if diff := cmp.Diff(tt.wantCandidates, convertToCandidates(result), cmpopts.SortSlices(func(i, j CompletionCandidate) bool {
 				return i.Label < j.Label
 			})); diff != "" {
 				t.Errorf("GetTagArgCompletionItems() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
+}
+
+func convertToCandidates(res *GetTagArgResult) []CompletionCandidate {
+	if res == nil {
+		return []CompletionCandidate{}
+	}
+
+	return res.Candidates()
 }

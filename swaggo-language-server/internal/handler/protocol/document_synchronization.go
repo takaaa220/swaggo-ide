@@ -4,7 +4,8 @@ package protocol
 type TextDocumentClientCapabilities struct {
 	Synchronization TextDocumentSyncClientCapabilities `json:"synchronization,omitempty"`
 	// Capabilities specific to the `textDocument/codeLens` request.
-	CodeLens CodeLensClientCapabilities `json:"codeLens,omitempty"`
+	CodeLens      CodeLensClientCapabilities       `json:"codeLens,omitempty"`
+	SignatureHelp *SignatureHelpClientCapabilities `json:"signatureHelp,omitempty"`
 }
 
 // TextDocumentSyncClientCapabilities defines capabilities for text document synchronization.

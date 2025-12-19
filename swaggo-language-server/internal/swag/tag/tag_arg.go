@@ -13,61 +13,61 @@ const (
 	swagTagArgDefTypeGoType
 )
 
-type swagTagArgDef struct {
+type SwagTagArgDef struct {
 	valueType swagTagArgDefType
 	label     string
 	checkers  []swagTagArgChecker
 }
 
-func newSwagTagStringArgDef(label string, optionalCheckers ...swagTagArgChecker) swagTagArgDef {
-	return swagTagArgDef{
+func newSwagTagStringArgDef(label string, optionalCheckers ...swagTagArgChecker) SwagTagArgDef {
+	return SwagTagArgDef{
 		valueType: swagTagArgDefTypeString,
 		label:     label,
 		checkers:  append([]swagTagArgChecker{&swagTagArgStringChecker{}}, optionalCheckers...),
 	}
 }
 
-func newSwagTagIntArgDef(label string, optionalCheckers ...swagTagArgChecker) swagTagArgDef {
-	return swagTagArgDef{
+func newSwagTagIntArgDef(label string, optionalCheckers ...swagTagArgChecker) SwagTagArgDef {
+	return SwagTagArgDef{
 		valueType: swagTagArgDefTypeString,
 		label:     label,
 		checkers:  append([]swagTagArgChecker{&swagTagArgIntChecker{}}, optionalCheckers...),
 	}
 }
 
-func newSwagTagBoolArgDef(label string, optionalCheckers ...swagTagArgChecker) swagTagArgDef {
-	return swagTagArgDef{
+func newSwagTagBoolArgDef(label string, optionalCheckers ...swagTagArgChecker) SwagTagArgDef {
+	return SwagTagArgDef{
 		valueType: swagTagArgDefTypeString,
 		label:     label,
 		checkers:  append([]swagTagArgChecker{&swagTagArgBoolChecker}, optionalCheckers...),
 	}
 }
 
-func newSwagTagGoTypeArgDef(label string, optionalCheckers ...swagTagArgChecker) swagTagArgDef {
-	return swagTagArgDef{
+func newSwagTagGoTypeArgDef(label string, optionalCheckers ...swagTagArgChecker) SwagTagArgDef {
+	return SwagTagArgDef{
 		valueType: swagTagArgDefTypeGoType,
 		label:     label,
 		checkers:  append([]swagTagArgChecker{&swagTagArgGoTypeChecker{}}, optionalCheckers...),
 	}
 }
 
-func newSwagTagConstStringArgDef(label string, value string, optionalCheckers ...swagTagArgChecker) swagTagArgDef {
-	return swagTagArgDef{
+func newSwagTagConstStringArgDef(label string, value string, optionalCheckers ...swagTagArgChecker) SwagTagArgDef {
+	return SwagTagArgDef{
 		valueType: swagTagArgDefTypeString,
 		label:     label,
 		checkers:  append([]swagTagArgChecker{&swagTagArgConstStringChecker{value: value}}, optionalCheckers...),
 	}
 }
 
-func newSwagTagUnionArgDef(label string, checker *swagTagArgUnionChecker, optionalCheckers ...swagTagArgChecker) swagTagArgDef {
-	return swagTagArgDef{
+func newSwagTagUnionArgDef(label string, checker *swagTagArgUnionChecker, optionalCheckers ...swagTagArgChecker) SwagTagArgDef {
+	return SwagTagArgDef{
 		valueType: swagTagArgDefTypeString,
 		label:     label,
 		checkers:  append([]swagTagArgChecker{checker}, optionalCheckers...),
 	}
 }
 
-func wrapArgDefWithBraces(openBrace rune, argDef swagTagArgDef) swagTagArgDef {
+func wrapArgDefWithBraces(openBrace rune, argDef SwagTagArgDef) SwagTagArgDef {
 	braces := map[rune]rune{
 		'[': ']',
 		'{': '}',
@@ -88,30 +88,34 @@ func wrapArgDefWithBraces(openBrace rune, argDef swagTagArgDef) swagTagArgDef {
 		}
 	}
 
-	return swagTagArgDef{
+	return SwagTagArgDef{
 		valueType: argDef.valueType,
-		label:     string(openBrace) + argDef.label + string(closeBrace),
+		label:     string(openBrace) + argDef.Label() + string(closeBrace),
 		checkers:  checkers,
 	}
 }
 
-func (s *swagTagArgDef) Check(arg swagTagArg) (bool, []string) {
+func (s *SwagTagArgDef) Check(arg swagTagArg) (bool, []string) {
 	errors := []string{}
 	for _, checker := range s.checkers {
 		if ok, errorMessage := checker.check(arg); !ok {
-			errors = append(errors, fmt.Sprintf("%s %s.", s.label, errorMessage))
+			errors = append(errors, fmt.Sprintf("%s %s.", s.Label(), errorMessage))
 		}
 	}
 
 	return len(errors) == 0, errors
 }
 
-func (s *swagTagArgDef) Candidates() []string {
+func (s *SwagTagArgDef) Candidates() []string {
 	candidates := []string{}
 	for _, checker := range s.checkers {
 		candidates = append(candidates, checker.candidates()...)
 	}
 	return candidates
+}
+
+func (s *SwagTagArgDef) Label() string {
+	return s.label
 }
 
 type swagTagArgChecker interface {
@@ -344,7 +348,7 @@ type swagTagArg interface {
 	TagArgType() string
 }
 
-func NewSwagTagArg(def swagTagArgDef, text string) (swagTagArg, error) {
+func NewSwagTagArg(def SwagTagArgDef, text string) (swagTagArg, error) {
 	switch def.valueType {
 	case swagTagArgDefTypeString:
 		return &swagTagArgString{value: text}, nil
