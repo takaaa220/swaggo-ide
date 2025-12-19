@@ -216,6 +216,45 @@ func TestGetTagArgCompletionItems(t *testing.T) {
 			},
 			want: []CompletionCandidate{},
 		},
+		"return_data_type_candidates_for_success_tag": {
+			args: args{
+				line: `// @Success 200 `,
+				position: Position{
+					Line:      0,
+					Character: 16,
+				},
+			},
+			want: []CompletionCandidate{
+				{
+					NewText: "{string}",
+					Label:   "{string}",
+				},
+				{
+					NewText: "{number}",
+					Label:   "{number}",
+				},
+				{
+					NewText: "{integer}",
+					Label:   "{integer}",
+				},
+				{
+					NewText: "{boolean}",
+					Label:   "{boolean}",
+				},
+				{
+					NewText: "{file}",
+					Label:   "{file}",
+				},
+				{
+					NewText: "{object}",
+					Label:   "{object}",
+				},
+				{
+					NewText: "{array}",
+					Label:   "{array}",
+				},
+			},
+		},
 	}
 	for name, tt := range tests {
 		tt := tt

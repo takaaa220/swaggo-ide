@@ -36,6 +36,23 @@ func TestCheckSyntax(t *testing.T) {
 			},
 			want: []SyntaxError{},
 		},
+		"return empty with array type": {
+			args: args{
+				uri: "test1",
+				src: `package main
+
+		// @Summary List users
+		// @Description get list of users
+		// @Tags users
+		// @Accept json
+		// @Produce json
+		// @Success 200 {array} []model.User
+		// @Failure 400 {array} []httputil.HTTPError
+		// @Router /users [get]
+				`,
+			},
+			want: []SyntaxError{},
+		},
 		"return diagnostics": {
 			args: args{
 				uri: "test1",
@@ -94,7 +111,7 @@ func TestCheckSyntax(t *testing.T) {
 						Start: Position{Line: 7, Character: 15},
 						End:   Position{Line: 7, Character: 20},
 					},
-					Message: "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
+					Message: "{DATA_TYPE} should be `string, number, integer, boolean, file, object or array`.",
 				},
 				{
 					Range: Range{
@@ -108,7 +125,7 @@ func TestCheckSyntax(t *testing.T) {
 						Start: Position{Line: 9, Character: 16},
 						End:   Position{Line: 9, Character: 21},
 					},
-					Message: "{DATA_TYPE} should be `string, number, integer, boolean, file or object`.",
+					Message: "{DATA_TYPE} should be `string, number, integer, boolean, file, object or array`.",
 				},
 				{
 					Range: Range{
