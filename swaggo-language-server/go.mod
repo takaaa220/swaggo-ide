@@ -1,6 +1,6 @@
 module github.com/takaaa220/swaggo-ide/swaggo-language-server
 
-go 1.23.1
+go 1.25
 
 require (
 	golang.org/x/exp/event v0.0.0-20220217172124-1812c5b45e43 // indirect
